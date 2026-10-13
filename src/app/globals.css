@@ -1,0 +1,49 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #222831;
+  --color-surface: #2e3541;
+  --color-line: #3e444e;
+  --color-fg: #a4b5d0;
+  --color-muted: #7f91ab;
+  --color-accent: #ff9f8c;
+  --color-accent-dim: rgb(255 159 140 / 0.12);
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-mono), ui-monospace, monospace;
+  --shadow-glow: 0 4px 14px rgb(255 159 140 / 0.16);
+}
+
+html { color-scheme: dark; scroll-behavior: smooth; scroll-padding-top: 5rem; }
+body { background: var(--color-bg); color: var(--color-fg); font-family: var(--font-sans); }
+::selection { background: var(--color-accent-dim); color: var(--color-accent); }
+
+.hero-pattern {
+  background-color: #2e3541;
+  background-image:
+    radial-gradient(circle at 2px 2px, rgb(156 146 172 / 0.28) 1.5px, transparent 1.8px),
+    linear-gradient(135deg, rgb(46 53 65 / 0.5), rgb(34 40 49 / 0.92));
+  background-size: 18px 18px, cover;
+}
+
+.mobile-nav-overlay-in {
+  animation: mobile-nav-overlay-in 160ms ease-out both;
+}
+
+.mobile-nav-drawer-in {
+  animation: mobile-nav-drawer-in 180ms ease-out both;
+}
+
+@keyframes mobile-nav-overlay-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes mobile-nav-drawer-in {
+  from { opacity: 0.96; transform: translateX(-8px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
