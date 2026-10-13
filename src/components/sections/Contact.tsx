@@ -16,7 +16,7 @@ export function Contact() {
       </header>
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.8fr)]">
-        <ContactForm email={profile.contactEmail} />
+        <ContactForm />
 
         <aside className="flex flex-col gap-4">
           <article className="rounded-2xl border border-line bg-surface p-6">
