@@ -1,9 +1,2 @@
-# Portfolio
+# 🔥 A personal website thoughtfully crafted using Next.js, Tailwind CSS, SWR, and Supabase
 
-Next.js (App Router, RSC default) · Tailwind v4 · Framer Motion · static export untuk GitHub Pages.
-
-```Python
-npm install
-npm run dev      
-npm run build
-```

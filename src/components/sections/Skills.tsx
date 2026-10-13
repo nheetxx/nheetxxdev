@@ -40,11 +40,9 @@ export function Skills() {
             {certificates.map((certificate) => (
               <article key={`${certificate.title}-${certificate.issuer}`} className="overflow-hidden rounded-2xl border border-line bg-surface">
                 {certificate.image ? (
-                  // Certificate images can be added to public/images/certificates.
                   <img src={certificate.image} alt={`${certificate.title} certificate`} className="aspect-video w-full bg-bg object-contain" />
                 ) : (
                   <div className="grid aspect-video place-items-center border-b border-line bg-bg text-sm text-muted">
-                    {/* Certificate image not added yet */}
                   </div>
                 )}
                 <div className="p-5">
