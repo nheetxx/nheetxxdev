@@ -1,4 +1,4 @@
 export const dashboardLinks = {
-  websiteUrl: "",
+  websiteUrl: "https://fajarinnaufal.vercel.app",
   githubUsername: "nheetxx",
 } as const;

@@ -9,7 +9,7 @@ export function Hero() {
   return (
     <section
       aria-labelledby="hero-title"
-      className="mx-auto flex w-full max-w-5xl flex-col px-6 pb-14 sm:px-10 sm:pb-20 lg:px-8 lg:pb-24"
+      className="mx-auto flex w-full max-w-5xl flex-col px-6 pb-14 sm:px-10 sm:pb-20 lg:mx-0 lg:px-8 lg:pb-24"
     >
       <div
         aria-hidden="true"
@@ -73,7 +73,7 @@ export function Hero() {
             <Button href="/contact/">Get in touch</Button>
             {showResume && (
               <Button href={profile.resumeUrl} variant="ghost">
-                Download résumé
+                Download resume
               </Button>
             )}
           </div>
