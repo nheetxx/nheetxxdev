@@ -2,8 +2,6 @@
 
 import { useState, type FormEvent } from "react";
 
-const FORMSPREE_ENDPOINT = "https://formspree.io/f/mkjovdwa";
-
 export function ContactForm() {
   const [status, setStatus] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -16,33 +14,20 @@ export function ContactForm() {
 
     try {
       const formData = new FormData(form);
-      formData.set("_subject", String(formData.get("subject") ?? "New contact message"));
-      const response = await fetch(FORMSPREE_ENDPOINT, {
+      const response = await fetch("/api/contact", {
         method: "POST",
-        headers: { Accept: "application/json" },
-        body: formData,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.get("name"),
+          email: formData.get("email"),
+          subject: formData.get("subject"),
+          message: formData.get("message"),
+        }),
       });
 
+      const result: { error?: string } = await response.json();
       if (!response.ok) {
-        const result: unknown = await response.json().catch(() => null);
-        const formErrors =
-          typeof result === "object" && result !== null && "errors" in result &&
-          Array.isArray(result.errors)
-            ? result.errors
-                .map((item: unknown) =>
-                  typeof item === "object" &&
-                  item !== null &&
-                  "message" in item &&
-                  typeof item.message === "string"
-                    ? item.message
-                    : null,
-                )
-                .filter((item): item is string => item !== null)
-            : [];
-        const message =
-          formErrors.join(" ") ||
-          `Formspree rejected the submission (HTTP ${response.status}). Check that the form is activated and the recipient email is verified in Formspree.`;
-        throw new Error(message);
+        throw new Error(result.error || `Message could not be sent (HTTP ${response.status}).`);
       }
 
       form.reset();
@@ -51,7 +36,7 @@ export function ContactForm() {
       console.error("Unable to send contact form message.", error);
       setStatus(
         error instanceof TypeError
-          ? "Could not connect to Formspree. Check your internet connection and try again."
+          ? "Could not connect to the contact service. Check your internet connection and try again."
           : error instanceof Error
             ? error.message
             : "Your message could not be sent. Please try again later or email me directly.",
