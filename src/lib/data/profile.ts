@@ -8,7 +8,7 @@ export const profile = {
   resumeUrl: "",
   socials: [
     { label: "GitHub", href: "https://github.com/nheetxx" },
-    { label: "LinkedIn", href: "https://www.linkedin.com/in/fajarin-naufal-185348375/" },
+    { label: "LinkedIn", href: "https://www.linkedin.com/in/fajarinnaufal" },
     { label: "Instagram", href: "https://www.instagram.com/nheetxx" },
   ],
 } as const;
