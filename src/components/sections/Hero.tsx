@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/Button";
+import { SocialIcon } from "@/components/ui/SocialIcon";
 import { profile } from "@/lib/data/profile";
 import { isSafeHttpsUrl } from "@/lib/validate";
 
@@ -53,9 +54,11 @@ export function Hero() {
               href={s.href}
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-md border border-line bg-surface px-4 py-2 text-sm text-muted transition-colors hover:border-accent hover:text-accent"
+              aria-label={`${s.label} profile`}
+              title={s.label}
+              className="grid size-10 place-items-center rounded-md border border-line bg-surface text-muted transition-colors hover:border-accent hover:text-accent"
             >
-              {s.label}
+              <SocialIcon label={s.label} />
             </a>
           </li>
         ))}

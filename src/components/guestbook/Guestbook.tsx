@@ -150,13 +150,6 @@ export function Guestbook() {
 
       {!supabase ? (
         <div className="rounded-2xl border border-line bg-surface p-6">
-          <h2 className="font-semibold">Guestbook setup required</h2>
-          <p className="mt-2 text-sm leading-6 text-muted">
-            Add your Supabase project URL and public anon key to <code className="text-accent">.env.local</code>,
-            then run the SQL setup in <code className="text-accent">supabase/schema.sql</code>.
-            Enable Google and GitHub providers and allow this site’s <code className="text-accent">/guestbook/</code> URL
-            in Supabase Auth redirect settings.
-          </p>
         </div>
       ) : (
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.8fr)]">
@@ -234,26 +227,53 @@ export function Guestbook() {
               </div>
             ) : (
               <div className="rounded-2xl border border-line bg-surface p-6">
-                <h2 className="text-lg font-semibold">Leave a message</h2>
-                <p className="mt-2 text-sm leading-6 text-muted">
-                  Sign in with Google or GitHub to post. Your name and message will be visible to visitors.
-                </p>
-                <div className="mt-5 flex flex-col gap-3">
+                <div className="flex items-start gap-2.5">
+                  <svg
+                    aria-hidden="true"
+                    viewBox="0 0 20 20"
+                    fill="none"
+                    className="mt-0.5 size-4 shrink-0 text-muted"
+                  >
+                    <path
+                      d="M11.5 3.5h4v4m-.5-3.5-6 6M15 10.5v4A1.5 1.5 0 0 1 13.5 16h-9A1.5 1.5 0 0 1 3 14.5v-9A1.5 1.5 0 0 1 4.5 4h4"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                  <p className="text-sm leading-6 text-muted">
+                    Please sign in to send a message. Your password stays with Google or GitHub and is never shared with this site.
+                  </p>
+                </div>
+                <div className="mt-4 flex flex-wrap gap-3">
                   <button
                     type="button"
                     onClick={() => void signIn("google")}
-                    className="rounded-lg border border-line px-4 py-2.5 text-sm transition-colors hover:border-accent"
+                    className="inline-flex items-center gap-2 rounded-md border border-[#d1d5db] bg-white px-3 py-2 text-sm font-medium text-[#1f1f1f] shadow-sm transition-colors hover:bg-[#f7f7f7] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
                   >
-                    Continue with Google
+                    <svg aria-hidden="true" viewBox="0 0 48 48" className="size-4">
+                      <path fill="#FFC107" d="M43.6 24.5c0-1.4-.1-2.8-.4-4.1H24v7.8h11a9.4 9.4 0 0 1-4.1 6.2v5.1h6.6c3.9-3.6 6.1-8.8 6.1-15Z" />
+                      <path fill="#FF3D00" d="M24 44c5.5 0 10.1-1.8 13.5-4.9l-6.6-5.1c-1.8 1.2-4.1 2-6.9 2-5.3 0-9.8-3.6-11.4-8.4H5.8v5.3A20 20 0 0 0 24 44Z" />
+                      <path fill="#4CAF50" d="M12.6 27.6a12 12 0 0 1 0-7.2v-5.3H5.8a20 20 0 0 0 0 17.8l6.8-5.3Z" />
+                      <path fill="#1976D2" d="M24 12c3 0 5.7 1 7.8 3.1l5.8-5.8C34.1 6 29.5 4 24 4A20 20 0 0 0 5.8 15.1l6.8 5.3C14.2 15.6 18.7 12 24 12Z" />
+                    </svg>
+                    Login with Google
                   </button>
                   <button
                     type="button"
                     onClick={() => void signIn("github")}
-                    className="rounded-lg border border-line px-4 py-2.5 text-sm transition-colors hover:border-accent"
+                    className="inline-flex items-center gap-2 rounded-md border border-[#d1d5db] bg-white px-3 py-2 text-sm font-medium text-[#1f1f1f] shadow-sm transition-colors hover:bg-[#f7f7f7] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
                   >
-                    Continue with GitHub
+                    <svg aria-hidden="true" viewBox="0 0 24 24" className="size-4 fill-current">
+                      <path d="M12 .9a11.1 11.1 0 0 0-3.5 21.6c.6.1.8-.2.8-.5v-2c-3.3.7-4-1.4-4-1.4-.5-1.3-1.3-1.7-1.3-1.7-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 .1.8 2.4 4.2 1.7.1-.7.4-1.2.7-1.5-2.6-.3-5.3-1.3-5.3-5.8 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.2 1.2a11.2 11.2 0 0 1 5.8 0C18 5.3 19 5.6 19 5.6c.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.5-2.7 5.5-5.3 5.8.4.3.8 1 .8 2v2.4c0 .3.2.6.8.5A11.1 11.1 0 0 0 12 .9Z" />
+                    </svg>
+                    Login with GitHub
                   </button>
                 </div>
+                <p className="mt-3 text-xs leading-5 text-muted">
+                  Your name and message will be visible to visitors.
+                </p>
               </div>
             )}
             <p className="px-1 text-xs leading-5 text-muted">

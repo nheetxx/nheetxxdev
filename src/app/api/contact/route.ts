@@ -82,9 +82,7 @@ export async function POST(request: Request) {
           .join(" ");
       }
     } catch {
-      // Keep the response status as the actionable fallback.
     }
-
     console.error("Formspree rejected a contact message.", {
       status: response.status,
       message: providerMessage,

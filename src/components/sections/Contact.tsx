@@ -1,4 +1,5 @@
 import { ContactForm } from "@/components/sections/ContactForm";
+import { SocialIcon } from "@/components/ui/SocialIcon";
 import { profile } from "@/lib/data/profile";
 import { isSafeHttpsUrl } from "@/lib/validate";
 
@@ -34,16 +35,18 @@ export function Contact() {
           </article>
           <article className="rounded-2xl border border-line bg-surface p-6">
             <h2 className="text-lg font-semibold">Find me online</h2>
-            <ul className="mt-4 flex flex-col gap-3">
+            <ul className="mt-4 flex flex-wrap gap-2">
               {profile.socials.filter((social) => isSafeHttpsUrl(social.href)).map((social) => (
                 <li key={social.label}>
                   <a
                     href={social.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm text-muted transition-colors hover:text-accent"
+                    aria-label={`${social.label} profile`}
+                    title={social.label}
+                    className="grid size-10 place-items-center rounded-md border border-line bg-surface text-muted transition-colors hover:border-accent hover:text-accent"
                   >
-                    {social.label} <span aria-hidden="true">↗</span>
+                    <SocialIcon label={social.label} />
                   </a>
                 </li>
               ))}
