@@ -79,6 +79,49 @@ create index if not exists guestbook_entries_parent_created_at_idx
   on public.guestbook_entries (parent_id, created_at)
   where parent_id is not null;
 
+create table if not exists public.guestbook_entry_reactions (
+  entry_id bigint not null references public.guestbook_entries (id) on delete cascade,
+  user_id uuid not null references auth.users (id) on delete cascade,
+  emoji text not null check (char_length(emoji) between 1 and 16),
+  created_at timestamptz not null default now(),
+  primary key (entry_id, user_id, emoji)
+);
+
+alter table public.guestbook_entry_reactions enable row level security;
+
+grant select, insert, delete on public.guestbook_entry_reactions to authenticated;
+
+drop policy if exists "Users can read their own guestbook reactions"
+  on public.guestbook_entry_reactions;
+create policy "Users can read their own guestbook reactions"
+  on public.guestbook_entry_reactions
+  for select
+  to authenticated
+  using (auth.uid() = user_id);
+
+drop policy if exists "Authenticated users can react to guestbook entries"
+  on public.guestbook_entry_reactions;
+create policy "Authenticated users can react to guestbook entries"
+  on public.guestbook_entry_reactions
+  for insert
+  to authenticated
+  with check (auth.uid() = user_id);
+
+drop policy if exists "Users can remove their own guestbook reactions"
+  on public.guestbook_entry_reactions;
+create policy "Users can remove their own guestbook reactions"
+  on public.guestbook_entry_reactions
+  for delete
+  to authenticated
+  using (auth.uid() = user_id);
+
+create or replace view public.guestbook_entry_reaction_counts as
+select entry_id, emoji, count(*)::integer as count
+from public.guestbook_entry_reactions
+group by entry_id, emoji;
+
+grant select on public.guestbook_entry_reaction_counts to anon, authenticated;
+
 alter table public.guestbook_entries enable row level security;
 
 grant select on public.guestbook_entries to anon, authenticated;

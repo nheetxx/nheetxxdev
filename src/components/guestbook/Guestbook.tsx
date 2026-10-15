@@ -2,7 +2,14 @@
 
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import type { User } from "@supabase/supabase-js";
+import EmojiPicker, { Theme } from "emoji-picker-react";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+
+type ReactionSummary = {
+  entry_id: number;
+  emoji: string;
+  count: number;
+};
 
 type GuestbookMessage = {
   id: number;
@@ -86,11 +93,54 @@ export function Guestbook() {
   const [message, setMessage] = useState("");
   const [replyingTo, setReplyingTo] = useState<number | null>(null);
   const [replyMessage, setReplyMessage] = useState("");
+  const [reactionSummaries, setReactionSummaries] = useState<ReactionSummary[]>([]);
+  const [myReactions, setMyReactions] = useState<Set<string>>(() => new Set());
+  const [reactionPickerFor, setReactionPickerFor] = useState<number | null>(null);
+  const [busyReaction, setBusyReaction] = useState<string | null>(null);
   const [loadingEntries, setLoadingEntries] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [submittingReply, setSubmittingReply] = useState(false);
   const [status, setStatus] = useState("");
   const supabase = getSupabaseBrowserClient();
+
+  const loadReactions = useCallback(async (entryIds: number[]) => {
+    if (!supabase || entryIds.length === 0) {
+      setReactionSummaries([]);
+      setMyReactions(new Set());
+      return;
+    }
+
+    const { data: counts, error: countsError } = await supabase
+      .from("guestbook_entry_reaction_counts")
+      .select("entry_id, emoji, count")
+      .in("entry_id", entryIds);
+
+    if (countsError) {
+      console.error("Unable to load guestbook reaction counts.", countsError);
+      setStatus("Reactions could not be loaded. Check the Supabase reaction table and permissions.");
+      return;
+    }
+    setReactionSummaries(counts ?? []);
+
+    if (!user) {
+      setMyReactions(new Set());
+      return;
+    }
+
+    const { data: ownReactions, error: ownReactionsError } = await supabase
+      .from("guestbook_entry_reactions")
+      .select("entry_id, emoji")
+      .eq("user_id", user.id)
+      .in("entry_id", entryIds);
+
+    if (ownReactionsError) {
+      console.error("Unable to load the current user's guestbook reactions.", ownReactionsError);
+      setStatus("Your reactions could not be loaded. Check the Supabase reaction table and permissions.");
+      return;
+    }
+
+    setMyReactions(new Set((ownReactions ?? []).map(({ entry_id, emoji }) => `${entry_id}:${emoji}`)));
+  }, [supabase, user]);
 
   const loadEntries = useCallback(async () => {
     if (!supabase) {
@@ -115,6 +165,7 @@ export function Guestbook() {
     const roots = rootEntries ?? [];
     if (!roots.length) {
       setEntries([]);
+      await loadReactions([]);
       setLoadingEntries(false);
       return;
     }
@@ -141,12 +192,17 @@ export function Guestbook() {
       repliesByEntry.set(reply.parent_id, entryReplies);
     }
 
-    setEntries(roots.map((entry) => ({
+    const entriesWithReplies = roots.map((entry) => ({
       ...entry,
       replies: repliesByEntry.get(entry.id) ?? [],
-    })));
+    }));
+    setEntries(entriesWithReplies);
+    await loadReactions([
+      ...roots.map((entry) => entry.id),
+      ...(replies ?? []).map((reply) => reply.id),
+    ]);
     setLoadingEntries(false);
-  }, [supabase]);
+  }, [loadReactions, supabase]);
 
   useEffect(() => {
     if (!supabase) {
@@ -264,6 +320,96 @@ export function Guestbook() {
     setSubmittingReply(false);
   }
 
+  async function toggleReaction(entryId: number, emoji: string) {
+    if (!supabase || !user) return;
+
+    const reactionKey = `${entryId}:${emoji}`;
+    setBusyReaction(reactionKey);
+    setStatus("");
+    const alreadyReacted = myReactions.has(reactionKey);
+    const result = alreadyReacted
+      ? await supabase
+          .from("guestbook_entry_reactions")
+          .delete()
+          .eq("entry_id", entryId)
+          .eq("user_id", user.id)
+          .eq("emoji", emoji)
+      : await supabase
+          .from("guestbook_entry_reactions")
+          .insert({ entry_id: entryId, user_id: user.id, emoji });
+
+    if (result.error) {
+      console.error("Unable to update guestbook reaction.", result.error);
+      setStatus("Your reaction could not be updated. Please try again.");
+    } else {
+      const entryIds = entries.flatMap((entry) => [
+        entry.id,
+        ...entry.replies.map((reply) => reply.id),
+      ]);
+      await loadReactions(entryIds);
+    }
+    setBusyReaction(null);
+  }
+
+  function renderReactions(entryId: number) {
+    const summaries = reactionSummaries.filter((reaction) => reaction.entry_id === entryId);
+
+    return (
+      <div className="relative mt-3 flex flex-wrap items-center gap-2">
+        {summaries.map((reaction) => {
+          const reactionKey = `${entryId}:${reaction.emoji}`;
+          const selected = myReactions.has(reactionKey);
+          return (
+            <button
+              key={reaction.emoji}
+              type="button"
+              onClick={() => void toggleReaction(entryId, reaction.emoji)}
+              disabled={!user || busyReaction === reactionKey}
+              aria-pressed={selected}
+              aria-label={`${reaction.emoji}, ${reaction.count} ${reaction.count === 1 ? "reaction" : "reactions"}${selected ? ", selected by you" : ""}`}
+              title={user ? "Toggle reaction" : "Sign in to react"}
+              className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-sm transition-colors disabled:cursor-default ${
+                selected
+                  ? "border-accent/50 bg-accent-dim text-accent"
+                  : "border-line bg-bg text-muted hover:border-accent/40 hover:text-fg"
+              }`}
+            >
+              <span aria-hidden="true">{reaction.emoji}</span>
+              <span className="text-xs">{reaction.count}</span>
+            </button>
+          );
+        })}
+        {user && (
+          <>
+            <button
+              type="button"
+              onClick={() => setReactionPickerFor(reactionPickerFor === entryId ? null : entryId)}
+              aria-label="Add an emoji reaction"
+              aria-expanded={reactionPickerFor === entryId}
+              className="inline-flex size-8 items-center justify-center rounded-full border border-line bg-bg text-base text-muted transition-colors hover:border-accent/40 hover:text-fg"
+            >
+              +
+            </button>
+            {reactionPickerFor === entryId && (
+              <div className="absolute left-0 top-full z-20 mt-2">
+                <EmojiPicker
+                  theme={Theme.DARK}
+                  onEmojiClick={(emojiData) => {
+                    setReactionPickerFor(null);
+                    void toggleReaction(entryId, emojiData.emoji);
+                  }}
+                  width={300}
+                  height={360}
+                  lazyLoadEmojis
+                />
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    );
+  }
+
   return (
     <section aria-labelledby="guestbook-title" className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-6 py-12 sm:px-10 sm:py-16 lg:mx-0 lg:px-12 lg:py-20">
       <header className="border-b border-line pb-6">
@@ -303,12 +449,14 @@ export function Guestbook() {
                   <li key={entry.id} className="py-4 first:pt-0 last:pb-0">
                     <MessageAuthor entry={entry} />
                     <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-6 text-muted">{entry.message}</p>
+                    {renderReactions(entry.id)}
                     {entry.replies.length > 0 && (
                       <ol className="mt-4 ml-4 flex flex-col gap-4 border-l border-line pl-4">
                         {entry.replies.map((reply) => (
                           <li key={reply.id}>
                             <MessageAuthor entry={reply} />
                             <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-6 text-muted">{reply.message}</p>
+                            {renderReactions(reply.id)}
                           </li>
                         ))}
                       </ol>
