@@ -2,7 +2,7 @@
 
 # nheetxx_
 
-**Personal site of Fajarin Naufal Al Ghazir**
+**Personal site of Fajarin Naufal Al Ghazir**<br>
 Information Systems student · cybersecurity · building for the web
 
 [**fajarinnaufal.vercel.app**](https://fajarinnaufal.vercel.app)
@@ -44,13 +44,13 @@ The rest is the usual set, kept short:
 ```mermaid
 flowchart LR
     V[Visitor] --> S[Next.js on Vercel]
-    S -->|SWR| P[PageSpeed Insights]
-    S -->|SWR| G[GitHub contributions]
-    S -->|Auth + messages| DB[(Supabase)]
+    S -->|server-side, API key stays private| P[PageSpeed Insights]
+    S --> G[GitHub contributions]
+    S -->|messages| DB[(Supabase)]
     V -.->|Google / GitHub OAuth| DB
 ```
 
-Pages render first, then SWR fills in the live numbers, so a slow external API never blocks the page.
+Pages render first, then SWR fills in the live numbers, so a slow external API never blocks the page. The PageSpeed key is only read on the server and never reaches the browser.
 
 ## Stack
 
@@ -83,26 +83,35 @@ npm run dev
 Open `http://localhost:3000`.
 
 ## Environment variables
- 
+
 Copy the template and fill in your own values:
- 
+
 ```bash
 cp .env.example .env.local
 ```
- 
+
 | Variable | Used for |
 | --- | --- |
 | `NEXT_PUBLIC_SUPABASE_URL` | Your Supabase project URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase public (anon) key, used by the guestbook and auth |
 | `PAGESPEED_API_KEY` | Google PageSpeed Insights API key for the dashboard (server-side only) |
- 
+
 The PageSpeed key comes from Google Cloud: enable the PageSpeed Insights API on a project and create an API key.
- 
+
 ## Supabase setup
- 
+
 1. Create a Supabase project and put its URL and anon key into `.env.local`.
 2. Set up the database using the files in `supabase/`.
 3. In Authentication → Providers, enable Google and GitHub, and add `http://localhost:3000` as an allowed redirect URL for local development.
+
+## Privacy and security
+
+- **No passwords on this site.** Guestbook login goes through Google or GitHub (OAuth, handled by Supabase Auth). The site never sees or stores your password.
+- **What's public.** Only your name and message are shown to visitors.
+- **Moderation.** Messages are stored in Supabase, and I can remove them there.
+- **Secrets.** The PageSpeed API key is only used on the server. The Supabase anon key is public by design; access to data is controlled on the Supabase side.
+
+Found a security issue? Please message me directly on [LinkedIn](https://www.linkedin.com/in/fajarinnaufal) instead of opening a public issue.
 
 ## Contact
 
