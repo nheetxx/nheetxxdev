@@ -7,6 +7,7 @@ import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 type Entry = {
   id: number;
   author_name: string;
+  author_avatar_url: string | null;
   message: string;
   created_at: string;
 };
@@ -15,6 +16,18 @@ function getDisplayName(user: User): string {
   const name = user.user_metadata.full_name ?? user.user_metadata.name;
   if (typeof name === "string" && name.trim()) return name.trim().slice(0, 60);
   return user.email?.split("@")[0]?.slice(0, 60) || "Guest";
+}
+
+function getAvatarUrl(user: User): string | null {
+  const avatar = user.user_metadata.avatar_url ?? user.user_metadata.picture;
+  if (typeof avatar !== "string") return null;
+
+  try {
+    const url = new URL(avatar);
+    return url.protocol === "https:" ? url.toString() : null;
+  } catch {
+    return null;
+  }
 }
 
 function formatDate(value: string): string {
@@ -41,7 +54,7 @@ export function Guestbook() {
     setLoadingEntries(true);
     const { data, error } = await supabase
       .from("guestbook_entries")
-      .select("id, author_name, message, created_at")
+      .select("id, author_name, author_avatar_url, message, created_at")
       .order("created_at", { ascending: false })
       .limit(100);
 
@@ -123,6 +136,7 @@ export function Guestbook() {
     const { error } = await supabase.from("guestbook_entries").insert({
       user_id: user.id,
       author_name: getDisplayName(user),
+      author_avatar_url: getAvatarUrl(user),
       message: cleanMessage,
     });
 
@@ -174,11 +188,30 @@ export function Guestbook() {
               <ol className="mt-5 flex flex-col divide-y divide-line">
                 {entries.map((entry) => (
                   <li key={entry.id} className="py-4 first:pt-0 last:pb-0">
-                    <div className="flex items-baseline justify-between gap-3">
-                      <p className="text-sm font-medium">{entry.author_name}</p>
-                      <time dateTime={entry.created_at} className="shrink-0 text-xs text-muted">
-                        {formatDate(entry.created_at)}
-                      </time>
+                    <div className="flex items-center gap-3">
+                      {entry.author_avatar_url ? (
+                        <img
+                          src={entry.author_avatar_url}
+                          alt=""
+                          referrerPolicy="no-referrer"
+                          className="size-10 shrink-0 rounded-full border border-line object-cover"
+                        />
+                      ) : (
+                        <span
+                          aria-hidden="true"
+                          className="flex size-10 shrink-0 items-center justify-center rounded-full border border-line bg-bg text-sm font-semibold text-muted"
+                        >
+                          {entry.author_name.charAt(0).toUpperCase()}
+                        </span>
+                      )}
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+                          <p className="truncate text-sm font-medium">{entry.author_name}</p>
+                          <time dateTime={entry.created_at} className="shrink-0 text-xs text-muted">
+                            {formatDate(entry.created_at)}
+                          </time>
+                        </div>
+                      </div>
                     </div>
                     <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-6 text-muted">{entry.message}</p>
                   </li>
