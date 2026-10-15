@@ -25,7 +25,7 @@ const csp = [
     ? "script-src 'self' 'unsafe-inline'"
     : "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data:",
+  "img-src 'self' data: https://*.googleusercontent.com https://avatars.githubusercontent.com",
   "font-src 'self'",
   `connect-src 'self' https://github-contributions-api.jogruber.de${supabaseConnectSrc}`,
   "object-src 'none'",
