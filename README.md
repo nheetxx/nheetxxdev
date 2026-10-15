@@ -13,7 +13,7 @@ Information Systems student · cybersecurity · building for the web
 ![Supabase](https://img.shields.io/badge/Supabase-222831?style=for-the-badge&logo=supabase&logoColor=3ECF8E)
 ![Vercel](https://img.shields.io/badge/Vercel-222831?style=for-the-badge&logo=vercel&logoColor=white)
 
-<img src="https://s.wordpress.com/mshots/v1/https%3A%2F%2Ffajarinnaufal.vercel.app?w=1200&h=700" alt="Preview" width="820">
+<img src="https://s.wordpress.com/mshots/v1/https://fajarinnaufal.vercel.app?w=1000&h=500" alt="Preview" width="820">
 
 </div>
 
