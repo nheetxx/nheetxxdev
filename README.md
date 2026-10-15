@@ -82,6 +82,28 @@ npm run dev
 
 Open `http://localhost:3000`.
 
+## Environment variables
+ 
+Copy the template and fill in your own values:
+ 
+```bash
+cp .env.example .env.local
+```
+ 
+| Variable | Used for |
+| --- | --- |
+| `NEXT_PUBLIC_SUPABASE_URL` | Your Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase public (anon) key, used by the guestbook and auth |
+| `PAGESPEED_API_KEY` | Google PageSpeed Insights API key for the dashboard (server-side only) |
+ 
+The PageSpeed key comes from Google Cloud: enable the PageSpeed Insights API on a project and create an API key.
+ 
+## Supabase setup
+ 
+1. Create a Supabase project and put its URL and anon key into `.env.local`.
+2. Set up the database using the files in `supabase/`.
+3. In Authentication → Providers, enable Google and GitHub, and add `http://localhost:3000` as an allowed redirect URL for local development.
+
 ## Contact
 
 [GitHub](https://github.com/nheetxx) · [LinkedIn](https://www.linkedin.com/in/fajarinnaufal) · [Instagram](https://www.instagram.com/nheetxx) · [Guestbook](https://fajarinnaufal.vercel.app/guestbook)
