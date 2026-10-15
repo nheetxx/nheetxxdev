@@ -10,6 +10,22 @@ create table if not exists public.guestbook_entries (
 alter table public.guestbook_entries
   add column if not exists author_avatar_url text;
 
+update public.guestbook_entries as entry
+set author_avatar_url = case
+  when coalesce(
+    auth_user.raw_user_meta_data ->> 'avatar_url',
+    auth_user.raw_user_meta_data ->> 'picture'
+  ) like 'https://%'
+    then coalesce(
+      auth_user.raw_user_meta_data ->> 'avatar_url',
+      auth_user.raw_user_meta_data ->> 'picture'
+    )
+  else null
+end
+from auth.users as auth_user
+where entry.user_id = auth_user.id
+  and entry.author_avatar_url is null;
+
 create index if not exists guestbook_entries_created_at_idx
   on public.guestbook_entries (created_at desc);
 
