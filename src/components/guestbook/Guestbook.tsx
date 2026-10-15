@@ -2,8 +2,17 @@
 
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import type { User } from "@supabase/supabase-js";
-import EmojiPicker, { Theme } from "emoji-picker-react";
+import dynamic from "next/dynamic";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+
+const EmojiPicker = dynamic(() => import("emoji-picker-react"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex h-[360px] w-[300px] items-center justify-center rounded-xl border border-line bg-surface text-sm text-muted">
+      Loading emoji…
+    </div>
+  ),
+});
 
 type ReactionSummary = {
   entry_id: number;
@@ -103,44 +112,24 @@ export function Guestbook() {
   const [status, setStatus] = useState("");
   const supabase = getSupabaseBrowserClient();
 
-  const loadReactions = useCallback(async (entryIds: number[]) => {
+  const loadReactionCounts = useCallback(async (entryIds: number[]) => {
     if (!supabase || entryIds.length === 0) {
       setReactionSummaries([]);
-      setMyReactions(new Set());
       return;
     }
 
-    const { data: counts, error: countsError } = await supabase
-      .from("guestbook_entry_reaction_counts")
-      .select("entry_id, emoji, count")
-      .in("entry_id", entryIds);
+    const { data: counts, error: countsError } = await supabase.rpc(
+      "get_guestbook_entry_reaction_counts",
+      { p_entry_ids: entryIds },
+    );
 
     if (countsError) {
       console.error("Unable to load guestbook reaction counts.", countsError);
-      setStatus("Reactions could not be loaded. Check the Supabase reaction table and permissions.");
+      setStatus("Reactions could not be loaded. Run the latest Supabase schema setup and try again.");
       return;
     }
     setReactionSummaries(counts ?? []);
-
-    if (!user) {
-      setMyReactions(new Set());
-      return;
-    }
-
-    const { data: ownReactions, error: ownReactionsError } = await supabase
-      .from("guestbook_entry_reactions")
-      .select("entry_id, emoji")
-      .eq("user_id", user.id)
-      .in("entry_id", entryIds);
-
-    if (ownReactionsError) {
-      console.error("Unable to load the current user's guestbook reactions.", ownReactionsError);
-      setStatus("Your reactions could not be loaded. Check the Supabase reaction table and permissions.");
-      return;
-    }
-
-    setMyReactions(new Set((ownReactions ?? []).map(({ entry_id, emoji }) => `${entry_id}:${emoji}`)));
-  }, [supabase, user]);
+  }, [supabase]);
 
   const loadEntries = useCallback(async () => {
     if (!supabase) {
@@ -165,7 +154,7 @@ export function Guestbook() {
     const roots = rootEntries ?? [];
     if (!roots.length) {
       setEntries([]);
-      await loadReactions([]);
+      await loadReactionCounts([]);
       setLoadingEntries(false);
       return;
     }
@@ -197,12 +186,12 @@ export function Guestbook() {
       replies: repliesByEntry.get(entry.id) ?? [],
     }));
     setEntries(entriesWithReplies);
-    await loadReactions([
+    await loadReactionCounts([
       ...roots.map((entry) => entry.id),
       ...(replies ?? []).map((reply) => reply.id),
     ]);
     setLoadingEntries(false);
-  }, [loadReactions, supabase]);
+  }, [loadReactionCounts, supabase]);
 
   useEffect(() => {
     if (!supabase) {
@@ -233,6 +222,37 @@ export function Guestbook() {
       subscription.unsubscribe();
     };
   }, [loadEntries, supabase]);
+
+  useEffect(() => {
+    if (!supabase || !user || entries.length === 0) {
+      setMyReactions(new Set());
+      return;
+    }
+
+    let active = true;
+    const entryIds = entries.flatMap((entry) => [
+      entry.id,
+      ...entry.replies.map((reply) => reply.id),
+    ]);
+    void supabase
+      .from("guestbook_entry_reactions")
+      .select("entry_id, emoji")
+      .eq("user_id", user.id)
+      .in("entry_id", entryIds)
+      .then(({ data, error }) => {
+        if (!active) return;
+        if (error) {
+          console.error("Unable to load the current user's guestbook reactions.", error);
+          setStatus("Your reactions could not be loaded. Check the Supabase reaction table and permissions.");
+          return;
+        }
+        setMyReactions(new Set((data ?? []).map(({ entry_id, emoji }) => `${entry_id}:${emoji}`)));
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [entries, supabase, user?.id]);
 
   async function signIn(provider: "google" | "github") {
     if (!supabase) return;
@@ -346,7 +366,7 @@ export function Guestbook() {
         entry.id,
         ...entry.replies.map((reply) => reply.id),
       ]);
-      await loadReactions(entryIds);
+      await loadReactionCounts(entryIds);
     }
     setBusyReaction(null);
   }
@@ -393,7 +413,7 @@ export function Guestbook() {
             {reactionPickerFor === entryId && (
               <div className="absolute left-0 top-full z-20 mt-2">
                 <EmojiPicker
-                  theme={Theme.DARK}
+                  theme="dark"
                   onEmojiClick={(emojiData) => {
                     setReactionPickerFor(null);
                     void toggleReaction(entryId, emojiData.emoji);

@@ -115,12 +115,23 @@ create policy "Users can remove their own guestbook reactions"
   to authenticated
   using (auth.uid() = user_id);
 
-create or replace view public.guestbook_entry_reaction_counts as
-select entry_id, emoji, count(*)::integer as count
-from public.guestbook_entry_reactions
-group by entry_id, emoji;
+drop view if exists public.guestbook_entry_reaction_counts;
 
-grant select on public.guestbook_entry_reaction_counts to anon, authenticated;
+create or replace function public.get_guestbook_entry_reaction_counts(p_entry_ids bigint[])
+returns table (entry_id bigint, emoji text, count integer)
+language sql
+security definer
+set search_path = ''
+as $$
+  select reaction.entry_id, reaction.emoji, count(*)::integer
+  from public.guestbook_entry_reactions as reaction
+  where p_entry_ids is not null
+    and reaction.entry_id = any(p_entry_ids)
+  group by reaction.entry_id, reaction.emoji;
+$$;
+
+revoke all on function public.get_guestbook_entry_reaction_counts(bigint[]) from public;
+grant execute on function public.get_guestbook_entry_reaction_counts(bigint[]) to anon, authenticated;
 
 alter table public.guestbook_entries enable row level security;
 
