@@ -464,7 +464,7 @@ export function Guestbook() {
             {loadingEntries ? (
               <p role="status" className="mt-6 text-sm text-muted">Loading messages…</p>
             ) : entries.length ? (
-              <ol className="mt-5 flex flex-col divide-y divide-line">
+              <ol className="mt-5 flex max-h-[55dvh] flex-col divide-y divide-line overflow-y-auto overscroll-contain pr-2 md:max-h-none md:overflow-visible md:pr-0">
                 {entries.map((entry) => (
                   <li key={entry.id} className="py-4 first:pt-0 last:pb-0">
                     <MessageAuthor entry={entry} />
