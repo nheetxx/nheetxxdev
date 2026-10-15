@@ -3,12 +3,16 @@ create table if not exists public.guestbook_entries (
   user_id uuid not null references auth.users (id) on delete cascade,
   author_name text not null check (char_length(author_name) between 1 and 60),
   author_avatar_url text,
+  is_owner boolean not null default false,
   message text not null check (char_length(message) between 2 and 500),
   created_at timestamptz not null default now()
 );
 
 alter table public.guestbook_entries
   add column if not exists author_avatar_url text;
+
+alter table public.guestbook_entries
+  add column if not exists is_owner boolean not null default false;
 
 update public.guestbook_entries as entry
 set author_avatar_url = case
@@ -25,6 +29,35 @@ end
 from auth.users as auth_user
 where entry.user_id = auth_user.id
   and entry.author_avatar_url is null;
+
+update public.guestbook_entries as entry
+set is_owner = coalesce(lower(auth_user.email) = 'fnaufal.dev@gmail.com', false)
+from auth.users as auth_user
+where entry.user_id = auth_user.id
+  and entry.is_owner is distinct from coalesce(lower(auth_user.email) = 'fnaufal.dev@gmail.com', false);
+
+create or replace function public.set_guestbook_entry_owner()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  new.is_owner := exists (
+    select 1
+    from auth.users as auth_user
+    where auth_user.id = auth.uid()
+      and lower(auth_user.email) = 'fnaufal.dev@gmail.com'
+  );
+  return new;
+end;
+$$;
+
+drop trigger if exists set_guestbook_entry_owner on public.guestbook_entries;
+create trigger set_guestbook_entry_owner
+  before insert on public.guestbook_entries
+  for each row
+  execute function public.set_guestbook_entry_owner();
 
 create index if not exists guestbook_entries_created_at_idx
   on public.guestbook_entries (created_at desc);

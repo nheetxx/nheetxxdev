@@ -8,6 +8,7 @@ type Entry = {
   id: number;
   author_name: string;
   author_avatar_url: string | null;
+  is_owner: boolean;
   message: string;
   created_at: string;
 };
@@ -54,7 +55,7 @@ export function Guestbook() {
     setLoadingEntries(true);
     const { data, error } = await supabase
       .from("guestbook_entries")
-      .select("id, author_name, author_avatar_url, message, created_at")
+      .select("id, author_name, author_avatar_url, is_owner, message, created_at")
       .order("created_at", { ascending: false })
       .limit(100);
 
@@ -206,7 +207,14 @@ export function Guestbook() {
                       )}
                       <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-                          <p className="truncate text-sm font-medium">{entry.author_name}</p>
+                          <div className="flex min-w-0 items-center gap-2">
+                            <p className="truncate text-sm font-medium">{entry.author_name}</p>
+                            {entry.is_owner && (
+                              <span className="shrink-0 rounded-full border border-accent/40 bg-accent-dim px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-accent">
+                                Owner
+                              </span>
+                            )}
+                          </div>
                           <time dateTime={entry.created_at} className="shrink-0 text-xs text-muted">
                             {formatDate(entry.created_at)}
                           </time>
