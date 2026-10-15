@@ -4,14 +4,56 @@ import { useCallback, useEffect, useState, type FormEvent } from "react";
 import type { User } from "@supabase/supabase-js";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
-type Entry = {
+type GuestbookMessage = {
   id: number;
+  parent_id: number | null;
   author_name: string;
   author_avatar_url: string | null;
   is_owner: boolean;
   message: string;
   created_at: string;
 };
+
+type Entry = GuestbookMessage & {
+  replies: GuestbookMessage[];
+};
+
+function MessageAuthor({ entry }: { entry: GuestbookMessage }) {
+  return (
+    <div className="flex items-center gap-3">
+      {entry.author_avatar_url ? (
+        <img
+          src={entry.author_avatar_url}
+          alt=""
+          referrerPolicy="no-referrer"
+          className="size-10 shrink-0 rounded-full border border-line object-cover"
+        />
+      ) : (
+        <span
+          aria-hidden="true"
+          className="flex size-10 shrink-0 items-center justify-center rounded-full border border-line bg-bg text-sm font-semibold text-muted"
+        >
+          {entry.author_name.charAt(0).toUpperCase()}
+        </span>
+      )}
+      <div className="min-w-0 flex-1">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+          <div className="flex min-w-0 items-center gap-2">
+            <p className="truncate text-sm font-medium">{entry.author_name}</p>
+            {entry.is_owner && (
+              <span className="shrink-0 rounded-full border border-accent/40 bg-accent-dim px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-accent">
+                Owner
+              </span>
+            )}
+          </div>
+          <time dateTime={entry.created_at} className="shrink-0 text-xs text-muted">
+            {formatDate(entry.created_at)}
+          </time>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function getDisplayName(user: User): string {
   const name = user.user_metadata.full_name ?? user.user_metadata.name;
@@ -42,8 +84,11 @@ export function Guestbook() {
   const [user, setUser] = useState<User | null>(null);
   const [entries, setEntries] = useState<Entry[]>([]);
   const [message, setMessage] = useState("");
+  const [replyingTo, setReplyingTo] = useState<number | null>(null);
+  const [replyMessage, setReplyMessage] = useState("");
   const [loadingEntries, setLoadingEntries] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [submittingReply, setSubmittingReply] = useState(false);
   const [status, setStatus] = useState("");
   const supabase = getSupabaseBrowserClient();
 
@@ -53,18 +98,53 @@ export function Guestbook() {
       return;
     }
     setLoadingEntries(true);
-    const { data, error } = await supabase
+    const { data: rootEntries, error: rootError } = await supabase
       .from("guestbook_entries")
-      .select("id, author_name, author_avatar_url, is_owner, message, created_at")
+      .select("id, parent_id, author_name, author_avatar_url, is_owner, message, created_at")
+      .is("parent_id", null)
       .order("created_at", { ascending: false })
       .limit(100);
 
-    if (error) {
-      console.error("Unable to load guestbook entries.", error);
+    if (rootError) {
+      console.error("Unable to load guestbook entries.", rootError);
       setStatus("Guestbook messages could not be loaded. Check the Supabase table and row-level security setup.");
-    } else {
-      setEntries(data ?? []);
+      setLoadingEntries(false);
+      return;
     }
+
+    const roots = rootEntries ?? [];
+    if (!roots.length) {
+      setEntries([]);
+      setLoadingEntries(false);
+      return;
+    }
+
+    const { data: replies, error: repliesError } = await supabase
+      .from("guestbook_entries")
+      .select("id, parent_id, author_name, author_avatar_url, is_owner, message, created_at")
+      .in("parent_id", roots.map((entry) => entry.id))
+      .order("created_at", { ascending: true });
+
+    if (repliesError) {
+      console.error("Unable to load guestbook replies.", repliesError);
+      setStatus("Guestbook replies could not be loaded. Check the Supabase table and row-level security setup.");
+      setEntries(roots.map((entry) => ({ ...entry, replies: [] })));
+      setLoadingEntries(false);
+      return;
+    }
+
+    const repliesByEntry = new Map<number, GuestbookMessage[]>();
+    for (const reply of replies ?? []) {
+      if (reply.parent_id === null) continue;
+      const entryReplies = repliesByEntry.get(reply.parent_id) ?? [];
+      entryReplies.push(reply);
+      repliesByEntry.set(reply.parent_id, entryReplies);
+    }
+
+    setEntries(roots.map((entry) => ({
+      ...entry,
+      replies: repliesByEntry.get(entry.id) ?? [],
+    })));
     setLoadingEntries(false);
   }, [supabase]);
 
@@ -152,6 +232,38 @@ export function Guestbook() {
     setSubmitting(false);
   }
 
+  async function submitReply(event: FormEvent<HTMLFormElement>, parentId: number) {
+    event.preventDefault();
+    if (!supabase || !user) return;
+
+    const cleanMessage = replyMessage.trim();
+    if (cleanMessage.length < 2 || cleanMessage.length > 500) {
+      setStatus("Replies must be between 2 and 500 characters.");
+      return;
+    }
+
+    setSubmittingReply(true);
+    setStatus("");
+    const { error } = await supabase.from("guestbook_entries").insert({
+      user_id: user.id,
+      parent_id: parentId,
+      author_name: getDisplayName(user),
+      author_avatar_url: getAvatarUrl(user),
+      message: cleanMessage,
+    });
+
+    if (error) {
+      console.error("Unable to save guestbook reply.", error);
+      setStatus("Your reply could not be saved. Please try again.");
+    } else {
+      setReplyMessage("");
+      setReplyingTo(null);
+      setStatus("Your reply has been added.");
+      await loadEntries();
+    }
+    setSubmittingReply(false);
+  }
+
   return (
     <section aria-labelledby="guestbook-title" className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-6 py-12 sm:px-10 sm:py-16 lg:mx-0 lg:px-12 lg:py-20">
       <header className="border-b border-line pb-6">
@@ -189,39 +301,62 @@ export function Guestbook() {
               <ol className="mt-5 flex flex-col divide-y divide-line">
                 {entries.map((entry) => (
                   <li key={entry.id} className="py-4 first:pt-0 last:pb-0">
-                    <div className="flex items-center gap-3">
-                      {entry.author_avatar_url ? (
-                        <img
-                          src={entry.author_avatar_url}
-                          alt=""
-                          referrerPolicy="no-referrer"
-                          className="size-10 shrink-0 rounded-full border border-line object-cover"
-                        />
-                      ) : (
-                        <span
-                          aria-hidden="true"
-                          className="flex size-10 shrink-0 items-center justify-center rounded-full border border-line bg-bg text-sm font-semibold text-muted"
-                        >
-                          {entry.author_name.charAt(0).toUpperCase()}
-                        </span>
-                      )}
-                      <div className="min-w-0 flex-1">
-                        <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-                          <div className="flex min-w-0 items-center gap-2">
-                            <p className="truncate text-sm font-medium">{entry.author_name}</p>
-                            {entry.is_owner && (
-                              <span className="shrink-0 rounded-full border border-accent/40 bg-accent-dim px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-accent">
-                                Owner
-                              </span>
-                            )}
-                          </div>
-                          <time dateTime={entry.created_at} className="shrink-0 text-xs text-muted">
-                            {formatDate(entry.created_at)}
-                          </time>
-                        </div>
-                      </div>
-                    </div>
+                    <MessageAuthor entry={entry} />
                     <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-6 text-muted">{entry.message}</p>
+                    {entry.replies.length > 0 && (
+                      <ol className="mt-4 ml-4 flex flex-col gap-4 border-l border-line pl-4">
+                        {entry.replies.map((reply) => (
+                          <li key={reply.id}>
+                            <MessageAuthor entry={reply} />
+                            <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-6 text-muted">{reply.message}</p>
+                          </li>
+                        ))}
+                      </ol>
+                    )}
+                    <div className="mt-3">
+                      {user ? (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setReplyMessage("");
+                            setReplyingTo(replyingTo === entry.id ? null : entry.id);
+                          }}
+                          className="text-xs font-medium text-accent hover:text-fg"
+                        >
+                          {replyingTo === entry.id ? "Cancel reply" : `Reply${entry.replies.length ? ` · ${entry.replies.length}` : ""}`}
+                        </button>
+                      ) : (
+                        <span className="text-xs text-muted">Sign in to reply</span>
+                      )}
+                    </div>
+                    {user && replyingTo === entry.id && (
+                      <form onSubmit={(event) => void submitReply(event, entry.id)} className="mt-3">
+                        <label htmlFor={`guestbook-reply-${entry.id}`} className="sr-only">
+                          Write a reply to {entry.author_name}
+                        </label>
+                        <textarea
+                          id={`guestbook-reply-${entry.id}`}
+                          value={replyMessage}
+                          onChange={(event) => setReplyMessage(event.target.value)}
+                          minLength={2}
+                          maxLength={500}
+                          rows={3}
+                          required
+                          placeholder="Write a reply…"
+                          className="w-full resize-y rounded-lg border border-line bg-bg px-3 py-2.5 text-sm text-fg outline-none placeholder:text-muted focus:border-accent"
+                        />
+                        <div className="mt-2 flex items-center justify-between gap-3">
+                          <span className="text-xs text-muted">{replyMessage.length}/500</span>
+                          <button
+                            type="submit"
+                            disabled={submittingReply}
+                            className="rounded-full bg-accent px-4 py-2 text-xs font-medium text-bg transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            {submittingReply ? "Replying…" : "Post reply"}
+                          </button>
+                        </div>
+                      </form>
+                    )}
                   </li>
                 ))}
               </ol>

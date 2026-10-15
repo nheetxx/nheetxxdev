@@ -4,6 +4,7 @@ create table if not exists public.guestbook_entries (
   author_name text not null check (char_length(author_name) between 1 and 60),
   author_avatar_url text,
   is_owner boolean not null default false,
+  parent_id bigint references public.guestbook_entries (id) on delete cascade,
   message text not null check (char_length(message) between 2 and 500),
   created_at timestamptz not null default now()
 );
@@ -13,6 +14,9 @@ alter table public.guestbook_entries
 
 alter table public.guestbook_entries
   add column if not exists is_owner boolean not null default false;
+
+alter table public.guestbook_entries
+  add column if not exists parent_id bigint references public.guestbook_entries (id) on delete cascade;
 
 update public.guestbook_entries as entry
 set author_avatar_url = case
@@ -43,6 +47,15 @@ security definer
 set search_path = ''
 as $$
 begin
+  if new.parent_id is not null and not exists (
+    select 1
+    from public.guestbook_entries as parent
+    where parent.id = new.parent_id
+      and parent.parent_id is null
+  ) then
+    raise exception 'Replies must reference a top-level guestbook entry.';
+  end if;
+
   new.is_owner := exists (
     select 1
     from auth.users as auth_user
@@ -61,6 +74,10 @@ create trigger set_guestbook_entry_owner
 
 create index if not exists guestbook_entries_created_at_idx
   on public.guestbook_entries (created_at desc);
+
+create index if not exists guestbook_entries_parent_created_at_idx
+  on public.guestbook_entries (parent_id, created_at)
+  where parent_id is not null;
 
 alter table public.guestbook_entries enable row level security;
 
