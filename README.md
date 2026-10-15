@@ -54,13 +54,13 @@ Pages render first, then SWR fills in the live numbers, so a slow external API n
 
 ## Stack
 
-| | |
-| --- | --- |
-| Framework | Next.js, TypeScript |
-| Styling | Tailwind CSS |
-| Data fetching | SWR |
-| Database and auth | Supabase |
-| Hosting | Vercel |
+| Layer | Tech | Used for |
+| --- | --- | --- |
+| Framework | Next.js, TypeScript | Pages, routing, server-side calls |
+| Styling | Tailwind CSS | UI |
+| Data fetching | SWR | Live data on the dashboard and guestbook |
+| Backend | Supabase | Guestbook messages and Google / GitHub login |
+| Hosting | Vercel | Deployment |
 
 ## Repo layout
 
