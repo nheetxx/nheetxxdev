@@ -26,6 +26,35 @@ body { background: var(--color-bg); color: var(--color-fg); font-family: var(--f
   background-size: 100% 100%, 18px 18px, cover;
 }
 
+.skill-marquee {
+  overflow: hidden;
+  mask-image: linear-gradient(to right, transparent, #000 5%, #000 95%, transparent);
+}
+
+.skill-marquee-track {
+  display: flex;
+  width: max-content;
+  animation: skill-marquee-scroll linear infinite;
+  animation-iteration-count: infinite;
+  animation-play-state: running;
+}
+
+.skill-marquee-track:hover {
+  animation-play-state: paused;
+}
+
+.skill-marquee-sequence {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 0.625rem;
+  padding-right: 0.625rem;
+}
+
+@keyframes skill-marquee-scroll {
+  to { transform: translateX(-50%); }
+}
+
 .mobile-nav-overlay-in {
   animation: mobile-nav-overlay-in 160ms ease-out both;
 }
@@ -46,5 +75,8 @@ body { background: var(--color-bg); color: var(--color-fg); font-family: var(--f
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  *, *::before, *::after { animation: none !important; transition: none !important; }
+  *:not(.skill-marquee-track), *:not(.skill-marquee-track)::before, *:not(.skill-marquee-track)::after {
+    animation: none !important;
+    transition: none !important;
+  }
 }
