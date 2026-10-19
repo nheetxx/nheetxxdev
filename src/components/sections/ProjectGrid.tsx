@@ -33,7 +33,7 @@ export function ProjectGrid({ projects }: { projects: Project[] }) {
         </div>
       )}
 
-      <ul className="flex flex-col gap-4">
+      <ul className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         {projects.map((p) => (
           <li key={p.slug}>
             <article className="rounded-2xl border border-line bg-surface p-6 transition-colors hover:border-accent/40">
