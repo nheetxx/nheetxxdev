@@ -3,6 +3,15 @@ import type { Project } from "@/types";
 export const projects: Project[] = [
   {
     slug: "project1",
+    title: "nheet pwned",
+    role: "Security Tool Developer",
+    period: "2026",
+    summary: "Password breach checker using the Have I Been Pwned API. Hashes passwords in the browser and checks results locally.",
+    stack: ["JavaScript", "React", "Vite", "Web Crypto API"],
+    repo: "https://github.com/nheetxx/nheet-pwned"
+  },
+  {
+    slug: "project2",
     title: "Network Traffic Analysis",
     role: "Lab exercise",
     period: "",
@@ -10,7 +19,7 @@ export const projects: Project[] = [
     stack: ["Networking", "Analysis"],
   },
   {
-    slug: "project2",
+    slug: "project3",
     title: "Systems Exploration & Troubleshooting",
     role: "Documentation",
     period: "",
@@ -18,7 +27,7 @@ export const projects: Project[] = [
     stack: ["System", "Linux"],
   },
   {
-    slug: "project3",
+    slug: "project4",
     title: "Personal Portfolio",
     role: "Development",
     period: "2026",
@@ -27,7 +36,7 @@ export const projects: Project[] = [
     repo: "https://github.com/nheetxx/nheetxxdev",
   },
   {
-    slug: "project4",
+    slug: "project5",
     title: "Tube-Flow",
     role: "Webapp",
     period: "2026",
@@ -36,7 +45,7 @@ export const projects: Project[] = [
     repo: "https://github.com/nheetxx/Tube-Flow",
   },
   {
-    slug: "project5",
+    slug: "project6",
     title: "nheetree",
     role: "Web Link",
     period: "2026",
