@@ -34,5 +34,14 @@ export const projects: Project[] = [
     summary: "YouTube Video & Music Downloader.",
     stack: ["Python", "Youtube Downloader"],
     repo: "https://github.com/nheetxx/Tube-Flow",
+  },
+  {
+    slug: "project5",
+    title: "nheetree",
+    role: "Web Link",
+    period: "2026",
+    summary: "Clone from Linktree",
+    stack: ["JavaScript"],
+    repo: "https://github.com/nheetxx/nheetree"
   }
 ];
