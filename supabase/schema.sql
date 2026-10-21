@@ -107,8 +107,56 @@ create table if not exists public.guestbook_entry_reactions (
   user_id uuid not null references auth.users (id) on delete cascade,
   emoji text not null check (char_length(emoji) between 1 and 16),
   created_at timestamptz not null default now(),
-  primary key (entry_id, user_id, emoji)
+  primary key (entry_id, user_id)
 );
+
+do $$
+declare
+  primary_key_name text;
+begin
+  select constraint_row.conname
+    into primary_key_name
+  from pg_catalog.pg_constraint as constraint_row
+  where constraint_row.conrelid = 'public.guestbook_entry_reactions'::regclass
+    and constraint_row.contype = 'p'
+    and pg_catalog.pg_get_constraintdef(constraint_row.oid)
+      <> 'PRIMARY KEY (entry_id, user_id)';
+
+  if primary_key_name is not null or not exists (
+    select 1
+    from pg_catalog.pg_constraint as constraint_row
+    where constraint_row.conrelid = 'public.guestbook_entry_reactions'::regclass
+      and constraint_row.contype = 'p'
+      and pg_catalog.pg_get_constraintdef(constraint_row.oid)
+        = 'PRIMARY KEY (entry_id, user_id)'
+  ) then
+    lock table public.guestbook_entry_reactions in access exclusive mode;
+
+    delete from public.guestbook_entry_reactions as reaction
+    using (
+      select
+        ctid,
+        pg_catalog.row_number() over (
+          partition by entry_id, user_id
+          order by created_at desc, emoji asc
+        ) as reaction_rank
+      from public.guestbook_entry_reactions
+    ) as ranked_reactions
+    where reaction.ctid = ranked_reactions.ctid
+      and ranked_reactions.reaction_rank > 1;
+
+    if primary_key_name is not null then
+      execute pg_catalog.format(
+        'alter table public.guestbook_entry_reactions drop constraint %I',
+        primary_key_name
+      );
+    end if;
+
+    alter table public.guestbook_entry_reactions
+      add constraint guestbook_entry_reactions_pkey primary key (entry_id, user_id);
+  end if;
+end;
+$$;
 
 alter table public.guestbook_entry_reactions enable row level security;
 
@@ -137,6 +185,52 @@ create policy "Users can remove their own guestbook reactions"
   for delete
   to authenticated
   using (auth.uid() = user_id);
+
+create or replace function public.toggle_guestbook_entry_reaction(
+  p_entry_id bigint,
+  p_emoji text
+)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  existing_emoji text;
+  current_user_id uuid := auth.uid();
+begin
+  if current_user_id is null then
+    raise exception using
+      errcode = '42501',
+      message = 'Authentication is required to react.';
+  end if;
+
+  perform pg_catalog.pg_advisory_xact_lock(
+    pg_catalog.hashtextextended(current_user_id::text || ':' || p_entry_id::text, 0)
+  );
+
+  select reaction.emoji
+    into existing_emoji
+  from public.guestbook_entry_reactions as reaction
+  where reaction.entry_id = p_entry_id
+    and reaction.user_id = current_user_id;
+
+  if found and existing_emoji = p_emoji then
+    delete from public.guestbook_entry_reactions as reaction
+    where reaction.entry_id = p_entry_id
+      and reaction.user_id = current_user_id;
+  else
+    insert into public.guestbook_entry_reactions (entry_id, user_id, emoji)
+    values (p_entry_id, current_user_id, p_emoji)
+    on conflict (entry_id, user_id) do update
+      set emoji = excluded.emoji,
+          created_at = pg_catalog.clock_timestamp();
+  end if;
+end;
+$$;
+
+revoke all on function public.toggle_guestbook_entry_reaction(bigint, text) from public, anon;
+grant execute on function public.toggle_guestbook_entry_reaction(bigint, text) to authenticated;
 
 drop view if exists public.guestbook_entry_reaction_counts;
 

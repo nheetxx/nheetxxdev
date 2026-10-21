@@ -109,7 +109,7 @@ export function Guestbook() {
   const [reactionSummaries, setReactionSummaries] = useState<ReactionSummary[]>([]);
   const [myReactions, setMyReactions] = useState<Set<string>>(() => new Set());
   const [reactionPickerFor, setReactionPickerFor] = useState<number | null>(null);
-  const [busyReaction, setBusyReaction] = useState<string | null>(null);
+  const [busyReaction, setBusyReaction] = useState<number | null>(null);
   const [loadingEntries, setLoadingEntries] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [submittingReply, setSubmittingReply] = useState(false);
@@ -353,31 +353,35 @@ export function Guestbook() {
   }
 
   async function toggleReaction(entryId: number, emoji: string) {
-    if (!supabase || !user) return;
+    if (!supabase || !user || busyReaction !== null) return;
 
-    const reactionKey = `${entryId}:${emoji}`;
-    setBusyReaction(reactionKey);
+    setBusyReaction(entryId);
     setStatus("");
-    const alreadyReacted = myReactions.has(reactionKey);
-    const result = alreadyReacted
-      ? await supabase
-          .from("guestbook_entry_reactions")
-          .delete()
-          .eq("entry_id", entryId)
-          .eq("user_id", user.id)
-          .eq("emoji", emoji)
-      : await supabase
-          .from("guestbook_entry_reactions")
-          .insert({ entry_id: entryId, user_id: user.id, emoji });
+    const { error } = await supabase.rpc("toggle_guestbook_entry_reaction", {
+      p_entry_id: entryId,
+      p_emoji: emoji,
+    });
 
-    if (result.error) {
-      console.error("Unable to update guestbook reaction.", result.error);
+    if (error) {
+      console.error("Unable to update guestbook reaction.", error);
       setStatus("Your reaction could not be updated. Please try again.");
     } else {
       const entryIds = entries.flatMap((entry) => [
         entry.id,
         ...entry.replies.map((reply) => reply.id),
       ]);
+      const { data: userReactions, error: userReactionsError } = await supabase
+        .from("guestbook_entry_reactions")
+        .select("entry_id, emoji")
+        .eq("user_id", user.id)
+        .in("entry_id", entryIds);
+
+      if (userReactionsError) {
+        console.error("Unable to refresh the current user's guestbook reactions.", userReactionsError);
+        setStatus("Your reactions could not be refreshed. Please reload the page.");
+      } else {
+        setMyReactions(new Set((userReactions ?? []).map(({ entry_id, emoji }) => `${entry_id}:${emoji}`)));
+      }
       await loadReactionCounts(entryIds);
     }
     setBusyReaction(null);
@@ -396,10 +400,10 @@ export function Guestbook() {
               key={reaction.emoji}
               type="button"
               onClick={() => void toggleReaction(entryId, reaction.emoji)}
-              disabled={!user || busyReaction === reactionKey}
+              disabled={!user || busyReaction !== null}
               aria-pressed={selected}
               aria-label={`${reaction.emoji}, ${reaction.count} ${reaction.count === 1 ? "reaction" : "reactions"}${selected ? ", selected by you" : ""}`}
-              title={user ? "Toggle reaction" : "Sign in to react"}
+              title={user ? "Click again to remove your reaction, or choose another emoji to change it" : "Sign in to react"}
               className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-sm transition-colors disabled:cursor-default ${
                 selected
                   ? "border-accent/50 bg-accent-dim text-accent"
@@ -416,8 +420,9 @@ export function Guestbook() {
             <button
               type="button"
               onClick={() => setReactionPickerFor(reactionPickerFor === entryId ? null : entryId)}
-              aria-label="Add an emoji reaction"
+              aria-label="Choose or change your emoji reaction"
               aria-expanded={reactionPickerFor === entryId}
+              disabled={busyReaction !== null}
               className="inline-flex size-8 items-center justify-center rounded-full border border-line bg-bg text-base text-muted transition-colors hover:border-accent/40 hover:text-fg"
             >
               +
