@@ -27,6 +27,10 @@ Most portfolio sites are a static page with a list of skills. This one has two p
 
 **A guestbook with real auth.** `/guestbook` lets visitors leave a message after signing in with Google or GitHub through Supabase Auth. The site never sees a password. Messages are public, and I moderate them directly in Supabase.
 
+> **⚠️ ACCOUNT SECURITY — YOUR GOOGLE/GITHUB PASSWORD IS NEVER SHARED WITH THIS SITE.**
+>
+> Sign-in is handled by Google or GitHub through Supabase Auth. This site cannot see your password, access your inbox or private files, or use your account to act elsewhere. The guestbook uses your account only to identify you and let you post, react to, or remove your own reactions on guestbook messages. It displays your profile name and avatar with your public messages. If the provider's consent screen asks for access that does not look limited to signing in, cancel and do not approve it.
+
 Guestbook comments and replies have a database-enforced 30-second cooldown per account. Reactions are limited to one per account on each message; clicking your reaction removes it, and choosing another emoji changes it. Apply the latest `supabase/schema.sql` to enable these rules.
 
 The rest is the usual set, kept short:
@@ -112,9 +116,11 @@ The PageSpeed key comes from Google Cloud: enable the PageSpeed Insights API on 
 
 ## Privacy and security
 
-- **No passwords on this site.** Guestbook login goes through Google or GitHub (OAuth, handled by Supabase Auth). The site never sees or stores your password.
-- **What's public.** Only your name and message are shown to visitors.
-- **Moderation.** Messages are stored in Supabase, and I can remove them there.
+- **Your account stays yours.** Google/GitHub handles the sign-in, and Supabase Auth handles the login session. This site does not receive or store your provider password, and it has no feature to read your email inbox, private files, or private repositories, or to post on your behalf outside this guestbook.
+- **What sign-in is for.** It identifies your guestbook account so you can post messages and replies and manage your own reactions. The app uses your profile name (or email name as a fallback) and avatar for display. Supabase Auth may retain account details needed to maintain your sign-in; your provider password is not among them.
+- **What becomes public.** Guestbook messages and replies are visible to visitors. Your display name and avatar may appear beside them. Do not post information you want to keep private.
+- **What is stored.** Messages and reactions are stored in the site's Supabase database. The site owner can moderate messages there. You can remove your own reactions in the guestbook; contact the site owner if you want a message removed.
+- **You control provider access.** You can review or revoke the site's connection from your Google or GitHub account settings. Only approve the sign-in if the provider consent screen shows permissions you expect.
 - **Secrets.** The PageSpeed API key is only used on the server. The Supabase anon key is public by design; access to data is controlled on the Supabase side.
 
 Found a security issue? Please message me directly on [LinkedIn](https://www.linkedin.com/in/fajarinnaufal) instead of opening a public issue.
