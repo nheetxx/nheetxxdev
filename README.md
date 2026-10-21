@@ -27,6 +27,8 @@ Most portfolio sites are a static page with a list of skills. This one has two p
 
 **A guestbook with real auth.** `/guestbook` lets visitors leave a message after signing in with Google or GitHub through Supabase Auth. The site never sees a password. Messages are public, and I moderate them directly in Supabase.
 
+Guestbook comments and replies have a database-enforced 30-second cooldown per account. Apply the latest `supabase/schema.sql` to enable it.
+
 The rest is the usual set, kept short:
 
 | Route | Content |

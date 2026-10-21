@@ -18,6 +18,13 @@ alter table public.guestbook_entries
 alter table public.guestbook_entries
   add column if not exists parent_id bigint references public.guestbook_entries (id) on delete cascade;
 
+create table if not exists public.guestbook_entry_rate_limits (
+  user_id uuid primary key references auth.users (id) on delete cascade,
+  last_entry_at timestamptz not null
+);
+
+alter table public.guestbook_entry_rate_limits enable row level security;
+
 update public.guestbook_entries as entry
 set author_avatar_url = case
   when coalesce(
@@ -46,6 +53,8 @@ language plpgsql
 security definer
 set search_path = ''
 as $$
+declare
+  rate_limit_user_id uuid;
 begin
   if new.parent_id is not null and not exists (
     select 1
@@ -54,6 +63,20 @@ begin
       and parent.parent_id is null
   ) then
     raise exception 'Replies must reference a top-level guestbook entry.';
+  end if;
+
+  insert into public.guestbook_entry_rate_limits (user_id, last_entry_at)
+  values (new.user_id, pg_catalog.clock_timestamp())
+  on conflict (user_id) do update
+    set last_entry_at = excluded.last_entry_at
+    where public.guestbook_entry_rate_limits.last_entry_at
+      <= excluded.last_entry_at - interval '30 seconds'
+  returning user_id into rate_limit_user_id;
+
+  if not found then
+    raise exception using
+      errcode = 'P0001',
+      message = 'GUESTBOOK_RATE_LIMIT';
   end if;
 
   new.is_owner := exists (

@@ -96,6 +96,10 @@ function formatDate(value: string): string {
   }).format(new Date(value));
 }
 
+function isGuestbookRateLimitError(error: { code?: string; message?: string }): boolean {
+  return error.code === "P0001" && error.message === "GUESTBOOK_RATE_LIMIT";
+}
+
 export function Guestbook() {
   const [user, setUser] = useState<User | null>(null);
   const [entries, setEntries] = useState<Entry[]>([]);
@@ -298,8 +302,12 @@ export function Guestbook() {
     });
 
     if (error) {
-      console.error("Unable to save guestbook message.", error);
-      setStatus("Your message could not be saved. Please try again.");
+      if (isGuestbookRateLimitError(error)) {
+        setStatus("Please wait 30 seconds between guestbook messages and replies.");
+      } else {
+        console.error("Unable to save guestbook message.", error);
+        setStatus("Your message could not be saved. Please try again.");
+      }
     } else {
       setMessage("");
       setStatus("Your message has been added.");
@@ -329,8 +337,12 @@ export function Guestbook() {
     });
 
     if (error) {
-      console.error("Unable to save guestbook reply.", error);
-      setStatus("Your reply could not be saved. Please try again.");
+      if (isGuestbookRateLimitError(error)) {
+        setStatus("Please wait 30 seconds between guestbook messages and replies.");
+      } else {
+        console.error("Unable to save guestbook reply.", error);
+        setStatus("Your reply could not be saved. Please try again.");
+      }
     } else {
       setReplyMessage("");
       setReplyingTo(null);
