@@ -104,7 +104,11 @@ The PageSpeed key comes from Google Cloud: enable the PageSpeed Insights API on 
 
 1. Create a Supabase project and put its URL and anon key into `.env.local`.
 2. Set up the database using the files in `supabase/`.
-3. In Authentication → Providers, enable Google and GitHub, and add `http://localhost:3000` as an allowed redirect URL for local development.
+3. In Authentication → Providers, enable Google and GitHub. In Authentication → URL Configuration, add these app URLs to **Redirect URLs**:
+   - `http://localhost:3000/guestbook/` for local development
+   - `https://fajarinnaufal.vercel.app/guestbook/` for production
+
+   The guestbook redirects back to the page where sign-in started, so each deployed domain must be allowed here. Keep the OAuth provider callback URL set to the Supabase callback URL shown in Supabase; it is separate from these app redirect URLs.
 
 ## Privacy and security
 

@@ -261,11 +261,12 @@ export function Guestbook() {
   async function signIn(provider: "google" | "github") {
     if (!supabase) return;
     setStatus("");
-    const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
-    const redirectTo = `${window.location.origin}${basePath}/guestbook/`;
+    const redirectTo = new URL(window.location.pathname, window.location.origin);
+    redirectTo.search = "";
+    redirectTo.hash = "";
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
-      options: { redirectTo },
+      options: { redirectTo: redirectTo.toString() },
     });
     if (error) {
       console.error(`Unable to sign in with ${provider}.`, error);
