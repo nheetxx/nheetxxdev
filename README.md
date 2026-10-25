@@ -7,11 +7,11 @@ Information Systems student · cybersecurity · building for the web
 
 [**fajarinnaufal.vercel.app**](https://fajarinnaufal.vercel.app)
 
-![Next.js](https://img.shields.io/badge/Next.js-222831?style=for-the-badge&logo=nextdotjs&logoColor=white)
-![TypeScript](https://img.shields.io/badge/TypeScript-222831?style=for-the-badge&logo=typescript&logoColor=3178C6)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-222831?style=for-the-badge&logo=tailwindcss&logoColor=38BDF8)
-![Supabase](https://img.shields.io/badge/Supabase-222831?style=for-the-badge&logo=supabase&logoColor=3ECF8E)
-![Vercel](https://img.shields.io/badge/Vercel-222831?style=for-the-badge&logo=vercel&logoColor=white)
+![Next.js](https://img.shields.io/badge/Next.js-0B0D12?style=for-the-badge&logo=nextdotjs&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-0B0D12?style=for-the-badge&logo=typescript&logoColor=3178C6)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-0B0D12?style=for-the-badge&logo=tailwindcss&logoColor=38BDF8)
+![Supabase](https://img.shields.io/badge/Supabase-0B0D12?style=for-the-badge&logo=supabase&logoColor=3ECF8E)
+![Vercel](https://img.shields.io/badge/Vercel-0B0D12?style=for-the-badge&logo=vercel&logoColor=white)
 
 <img src="https://s.wordpress.com/mshots/v1/https://fajarinnaufal.vercel.app?w=1000&h=500" alt="Preview" width="820">
 
@@ -39,11 +39,16 @@ The rest is the usual set, kept short:
 | --- | --- |
 | `/` | Intro and links |
 | `/about` | Background and what I'm learning |
+| `/portfolio` | Selected projects |
 | `/skillset` | Cybersecurity, systems, and development tools, plus certificates |
 | `/experience` | Education and work timeline |
 | `/dashboard` | Live PageSpeed scores and GitHub activity |
 | `/guestbook` | Public visitor messages |
 | `/contact` | Get in touch |
+
+## Design
+
+The site uses JetBrains Mono and a cool, dark Arch Linux / Hyprland-inspired palette. Terminal-style panels share a consistent title bar, while blue is reserved for interactive accents. On mobile, the menu button floats over the page and opens the existing navigation drawer.
 
 ## How the data flows
 
@@ -56,7 +61,7 @@ flowchart LR
     V -.->|Google / GitHub OAuth| DB
 ```
 
-Pages render first, then SWR fills in the live numbers, so a slow external API never blocks the page. The PageSpeed key is only read on the server and never reaches the browser.
+The dashboard renders first, then client-side requests load the live numbers, so a slow external API never blocks the page. The PageSpeed key is only read on the server and never reaches the browser.
 
 ## Stack
 
@@ -64,7 +69,7 @@ Pages render first, then SWR fills in the live numbers, so a slow external API n
 | --- | --- | --- |
 | Framework | Next.js, TypeScript | Pages, routing, server-side calls |
 | Styling | Tailwind CSS | UI |
-| Data fetching | SWR | Live data on the dashboard and guestbook |
+| Data fetching | React client-side requests | Live data on the dashboard and guestbook |
 | Backend | Supabase | Guestbook messages and Google / GitHub login |
 | Hosting | Vercel | Deployment |
 
