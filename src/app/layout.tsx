@@ -53,7 +53,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <MobileNav items={nav} />
         <Sidebar />
 
-        <div className="pt-14 lg:pl-64 lg:pt-0">
+        <div className="lg:pl-64">
           <main id="main" className="min-h-dvh">{children}</main>
           <Footer />
         </div>

@@ -1,5 +1,4 @@
 "use client";
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { NavItem } from "@/types";
 import { SidebarNav } from "./SidebarNav";
@@ -16,19 +15,20 @@ export function MobileNav({ items }: { items: readonly NavItem[] }) {
 
   return (
     <div className="lg:hidden">
-      <div className="fixed inset-x-0 top-0 z-40 flex h-14 items-center justify-between border-b border-line bg-sidebar px-5 shadow-sm">
-        <Link href="/" className="font-mono text-sm tracking-tight">
-          nheetxx<span className="text-fg">_</span>
-        </Link>
-        <button
-          onClick={() => setOpen((v) => !v)}
-          aria-expanded={open}
-          aria-controls="mobile-drawer"
-          className="terminal-control border border-line px-3 py-1.5 text-sm transition-colors hover:border-accent hover:text-accent"
-        >
-          {open ? "Close" : "Menu"}
-        </button>
-      </div>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-label={open ? "Close menu" : "Open menu"}
+        aria-expanded={open}
+        aria-controls="mobile-drawer"
+        className={`terminal-control fixed top-4 z-[60] grid size-10 place-items-center border border-line bg-sidebar text-accent shadow-sm transition-[left] duration-200 hover:bg-elevated focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${
+          open ? "left-[17rem]" : "left-4"
+        }`}
+      >
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" className="size-5">
+          <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        </svg>
+      </button>
 
       {open && (
         <>
