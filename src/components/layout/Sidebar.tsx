@@ -4,10 +4,10 @@ import { SidebarNav } from "./SidebarNav";
 
 export function Sidebar() {
   return (
-    <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-line bg-surface px-4 py-6 shadow-sm lg:flex">
+    <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-line bg-sidebar px-4 py-6 shadow-sm lg:flex">
       <Link href="/" className="mb-8 px-3">
         <span className="font-mono text-sm tracking-tight">
-          nheetxx<span className="text-accent">_</span>
+          nheetxx<span className="text-fg">_</span>
         </span>
       </Link>
 

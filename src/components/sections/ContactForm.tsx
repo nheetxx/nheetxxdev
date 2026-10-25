@@ -47,7 +47,7 @@ export function ContactForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-2xl border border-line bg-surface p-6 sm:p-8">
+    <form onSubmit={handleSubmit} className="terminal-window border border-line bg-surface p-6 sm:p-8">
       <h2 className="text-lg font-semibold">Send a message</h2>
       <p className="mt-2 text-sm text-muted">Your message will be sent directly to my inbox.</p>
 
@@ -59,7 +59,7 @@ export function ContactForm() {
             autoComplete="name"
             required
             maxLength={80}
-            className="rounded-lg border border-line bg-bg px-3 py-2.5 text-fg outline-none focus:border-accent"
+            className="terminal-control border border-line bg-bg px-3 py-2.5 text-fg outline-none focus:border-accent"
           />
         </label>
         <label className="flex flex-col gap-2 text-sm">
@@ -70,7 +70,7 @@ export function ContactForm() {
             autoComplete="email"
             required
             maxLength={254}
-            className="rounded-lg border border-line bg-bg px-3 py-2.5 text-fg outline-none focus:border-accent"
+            className="terminal-control border border-line bg-bg px-3 py-2.5 text-fg outline-none focus:border-accent"
           />
         </label>
       </div>
@@ -81,7 +81,7 @@ export function ContactForm() {
           name="subject"
           required
           maxLength={120}
-          className="rounded-lg border border-line bg-bg px-3 py-2.5 text-fg outline-none focus:border-accent"
+          className="terminal-control border border-line bg-bg px-3 py-2.5 text-fg outline-none focus:border-accent"
         />
       </label>
 
@@ -93,14 +93,14 @@ export function ContactForm() {
           minLength={10}
           maxLength={1000}
           rows={5}
-          className="resize-y rounded-lg border border-line bg-bg px-3 py-2.5 text-fg outline-none focus:border-accent"
+          className="terminal-control resize-y border border-line bg-bg px-3 py-2.5 text-fg outline-none focus:border-accent"
         />
       </label>
 
       <button
         type="submit"
         disabled={submitting}
-        className="mt-5 inline-flex rounded-md border border-[#ff77134c] bg-[#f7b8a4] px-5 py-2.5 text-sm font-medium text-[#71312c] transition-shadow hover:shadow-glow disabled:cursor-not-allowed disabled:opacity-60"
+        className="terminal-control mt-5 inline-flex border border-accent bg-accent px-5 py-2.5 text-sm font-medium text-bg transition-shadow disabled:cursor-not-allowed disabled:opacity-60"
       >
         {submitting ? "Sending…" : "Send message"}
       </button>

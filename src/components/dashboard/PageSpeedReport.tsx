@@ -27,9 +27,9 @@ interface PageSpeedApiResponse {
 
 function scoreColor(score: number | null | undefined) {
   if (score === null || score === undefined) return "text-muted";
-  if (score >= 90) return "text-emerald-400";
-  if (score >= 50) return "text-amber-300";
-  return "text-rose-400";
+  if (score >= 90) return "text-success";
+  if (score >= 50) return "text-muted";
+  return "text-fg";
 }
 
 export function PageSpeedReport({
@@ -81,11 +81,11 @@ export function PageSpeedReport({
   }, [strategy, refreshCount]);
 
   return (
-    <article className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
+    <article className="terminal-window border border-line bg-surface p-5 sm:p-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-            <span aria-hidden="true" className="text-accent">◷</span>
+            <span aria-hidden="true" className="text-muted">◷</span>
             <h2 className="text-lg font-semibold">PageSpeed Insights</h2>
           </div>
           <p className="mt-1 text-sm text-muted">Google Lighthouse scores</p>
@@ -131,7 +131,7 @@ export function PageSpeedReport({
 
       {error ? (
         <div className="flex min-h-32 flex-col items-center justify-center gap-2 text-center" aria-live="polite">
-          <p className="text-sm text-accent">{error}</p>
+          <p className="text-sm text-muted">{error}</p>
           <p className="text-xs text-muted">
             Scores refresh hourly to stay within the PageSpeed API quota.
           </p>
@@ -142,7 +142,7 @@ export function PageSpeedReport({
             {scoreLabels.map(([category, label]) => {
               const score = report?.scores[category];
               return (
-                <li key={category} className="rounded-lg border border-line bg-bg px-3 py-4 text-center">
+                <li key={category} className="terminal-chip border border-line bg-bg px-3 py-4 text-center">
                   <span className={`block text-2xl font-semibold ${scoreColor(score)}`}>
                     {loading ? "…" : score ?? "—"}
                   </span>

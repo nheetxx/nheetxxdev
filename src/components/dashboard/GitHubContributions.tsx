@@ -39,11 +39,11 @@ function isContributionResponse(value: unknown): value is {
 }
 
 const levelClasses = [
-  "bg-[#353535]",
-  "bg-[#9bbce0]/25",
-  "bg-[#9bbce0]/45",
-  "bg-[#9bbce0]/70",
-  "bg-[#9bbce0]",
+  "bg-elevated",
+  "bg-success/25",
+  "bg-success/45",
+  "bg-success/70",
+  "bg-success",
 ];
 
 export function GitHubContributions({ username }: { username: string }) {
@@ -97,7 +97,7 @@ export function GitHubContributions({ username }: { username: string }) {
   const profileUrl = `https://github.com/${encodeURIComponent(username)}`;
 
   return (
-    <article className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
+    <article className="terminal-window border border-line bg-surface p-5 sm:p-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h2 className="text-lg font-semibold">GitHub Contributions</h2>
@@ -161,7 +161,7 @@ export function GitHubContributions({ username }: { username: string }) {
                     ["Best Day", bestDay.toLocaleString()],
                     ["Average", (state.data.total / 365).toFixed(1)],
                   ].map(([label, value]) => (
-                    <li key={label} className="rounded-lg border border-line bg-bg px-3 py-2.5">
+                    <li key={label} className="terminal-chip border border-line bg-bg px-3 py-2.5">
                       <span className="block text-xs text-muted">{label}</span>
                       <span className="mt-1 block text-lg font-semibold">{value}</span>
                     </li>

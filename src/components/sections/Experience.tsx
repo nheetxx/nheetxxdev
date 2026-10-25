@@ -17,8 +17,8 @@ export function Experience() {
         {experiences.map((experience) => (
           <li key={`${experience.role}-${experience.organization}`} className="relative">
             <span aria-hidden="true" className="absolute -left-[29px] top-6 size-2.5 rounded-full border-2 border-accent bg-bg" />
-            <article className="rounded-2xl border border-line bg-surface p-6">
-              <p className="text-xs font-medium uppercase tracking-wide text-accent">{experience.period}</p>
+            <article className="terminal-window border border-line bg-surface p-6">
+              <p className="text-xs font-medium uppercase tracking-wide text-muted">{experience.period}</p>
               <h2 className="mt-2 text-lg font-semibold">{experience.role}</h2>
               <p className="mt-1 text-sm text-muted">{experience.organization}</p>
               <p className="mt-4 text-sm leading-6 text-muted">{experience.description}</p>

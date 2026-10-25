@@ -1,13 +1,12 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
+import { JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Footer } from "@/components/layout/Footer";
 import { MobileNav } from "@/components/layout/MobileNav";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { nav } from "@/lib/data/nav";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
-const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono", display: "swap" });
+const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-jetbrains-mono", display: "swap" });
 
 const supabaseConnectSrc = (() => {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -38,11 +37,11 @@ export const metadata: Metadata = {
   description: "Information Systems student at Universitas Trunojoyo Madura with an interest in cybersecurity.",
   openGraph: { type: "website", locale: "en_US" },
 };
-export const viewport: Viewport = { themeColor: "#222831", width: "device-width", initialScale: 1 };
+export const viewport: Viewport = { themeColor: "#0b0d12", width: "device-width", initialScale: 1 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} ${mono.variable}`}>
+    <html lang="en" className={mono.variable}>
       <head>
         <meta httpEquiv="Content-Security-Policy" content={csp} />
       </head>

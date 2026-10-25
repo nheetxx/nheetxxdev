@@ -20,7 +20,7 @@ export function Contact() {
         <ContactForm />
 
         <aside className="flex flex-col gap-4">
-          <article className="rounded-2xl border border-line bg-surface p-6">
+          <article className="terminal-window border border-line bg-surface p-6">
             <h2 className="text-lg font-semibold">Get in touch</h2>
             {profile.contactEmail ? (
               <a href={`mailto:${profile.contactEmail}`} className="mt-3 inline-block text-sm text-accent hover:text-fg">
@@ -28,12 +28,12 @@ export function Contact() {
               </a>
             ) : (
               <p className="mt-3 text-sm leading-6 text-muted">
-                Add your email in <code className="rounded bg-bg px-1.5 py-0.5 text-accent">profile.ts</code> to
+                Add your email in <code className="rounded bg-bg px-1.5 py-0.5 text-fg">profile.ts</code> to
                 enable direct messages.
               </p>
             )}
           </article>
-          <article className="rounded-2xl border border-line bg-surface p-6">
+          <article className="terminal-window border border-line bg-surface p-6">
             <h2 className="text-lg font-semibold">Find me online</h2>
             <ul className="mt-4 flex flex-wrap gap-2">
               {profile.socials.filter((social) => isSafeHttpsUrl(social.href)).map((social) => (
@@ -44,7 +44,7 @@ export function Contact() {
                     rel="noopener noreferrer"
                     aria-label={`${social.label} profile`}
                     title={social.label}
-                    className="grid size-10 place-items-center rounded-md border border-line bg-surface text-muted transition-colors hover:border-accent hover:text-accent"
+                    className="terminal-control grid size-10 place-items-center border border-line bg-surface text-muted transition-colors hover:border-accent hover:text-accent"
                   >
                     <SocialIcon label={social.label} />
                   </a>

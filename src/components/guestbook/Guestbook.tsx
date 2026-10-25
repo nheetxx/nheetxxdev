@@ -8,7 +8,7 @@ import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 const EmojiPicker = dynamic(() => import("emoji-picker-react"), {
   ssr: false,
   loading: () => (
-    <div className="flex h-[360px] w-[300px] items-center justify-center rounded-xl border border-line bg-surface text-sm text-muted">
+    <div className="terminal-window flex h-[360px] w-[300px] items-center justify-center border border-line bg-surface text-sm text-muted">
       Loading emoji…
     </div>
   ),
@@ -405,10 +405,10 @@ export function Guestbook() {
               aria-pressed={selected}
               aria-label={`${reaction.emoji}, ${reaction.count} ${reaction.count === 1 ? "reaction" : "reactions"}${selected ? ", selected by you" : ""}`}
               title={user ? "Click again to remove your reaction, or choose another emoji to change it" : "Sign in to react"}
-              className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-sm transition-colors disabled:cursor-default ${
+              className={`terminal-chip inline-flex items-center gap-1.5 border px-2.5 py-1 text-sm transition-colors disabled:cursor-default ${
                 selected
                   ? "border-accent/50 bg-accent-dim text-accent"
-                  : "border-line bg-bg text-muted hover:border-accent/40 hover:text-fg"
+                  : "border-line bg-bg text-muted hover:border-accent/40 hover:bg-elevated hover:text-fg"
               }`}
             >
               <span aria-hidden="true">{reaction.emoji}</span>
@@ -424,7 +424,7 @@ export function Guestbook() {
               aria-label="Choose or change your emoji reaction"
               aria-expanded={reactionPickerFor === entryId}
               disabled={busyReaction !== null}
-              className="inline-flex size-8 items-center justify-center rounded-full border border-line bg-bg text-base text-muted transition-colors hover:border-accent/40 hover:text-fg"
+              className="terminal-control inline-flex size-8 items-center justify-center border border-line bg-bg text-base text-muted transition-colors hover:border-accent/40 hover:bg-elevated hover:text-fg"
             >
               +
             </button>
@@ -460,11 +460,11 @@ export function Guestbook() {
       </header>
 
       {!supabase ? (
-        <div className="rounded-2xl border border-line bg-surface p-6">
+        <div className="terminal-window border border-line bg-surface p-6">
         </div>
       ) : (
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.8fr)]">
-          <div className="rounded-2xl border border-line bg-surface p-6">
+          <div className="terminal-window border border-line bg-surface p-6">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h2 className="text-lg font-semibold">Messages</h2>
@@ -529,14 +529,14 @@ export function Guestbook() {
                           rows={3}
                           required
                           placeholder="Write a reply…"
-                          className="w-full resize-y rounded-lg border border-line bg-bg px-3 py-2.5 text-sm text-fg outline-none placeholder:text-muted focus:border-accent"
+                          className="terminal-control w-full resize-y border border-line bg-bg px-3 py-2.5 text-sm text-fg outline-none placeholder:text-muted focus:border-accent"
                         />
                         <div className="mt-2 flex items-center justify-between gap-3">
                           <span className="text-xs text-muted">{replyMessage.length}/500</span>
                           <button
                             type="submit"
                             disabled={submittingReply}
-                            className="rounded-full bg-accent px-4 py-2 text-xs font-medium text-bg transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                            className="terminal-control border border-accent/40 bg-accent px-4 py-2 text-xs font-medium text-bg transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
                           >
                             {submittingReply ? "Replying…" : "Post reply"}
                           </button>
@@ -547,7 +547,7 @@ export function Guestbook() {
                 ))}
               </ol>
             ) : (
-              <p className="mt-6 rounded-lg border border-dashed border-line p-4 text-sm text-muted">
+              <p className="terminal-chip mt-6 border border-dashed border-line p-4 text-sm text-muted">
                 No messages yet. Be the first to sign in and leave a note.
               </p>
             )}
@@ -555,7 +555,7 @@ export function Guestbook() {
 
           <aside className="flex flex-col gap-4">
             {user ? (
-              <div className="rounded-2xl border border-line bg-surface p-6">
+              <div className="terminal-window border border-line bg-surface p-6">
                 <div className="flex items-center justify-between gap-3">
                   <p className="text-sm text-muted">
                     Signed in as <span className="font-medium text-fg">{getDisplayName(user)}</span>
@@ -575,20 +575,20 @@ export function Guestbook() {
                     rows={5}
                     required
                     placeholder="Write a message…"
-                    className="mt-2 w-full resize-y rounded-lg border border-line bg-bg px-3 py-2.5 text-sm text-fg outline-none placeholder:text-muted focus:border-accent"
+                    className="terminal-control mt-2 w-full resize-y border border-line bg-bg px-3 py-2.5 text-sm text-fg outline-none placeholder:text-muted focus:border-accent"
                   />
                   <p className="mt-1 text-right text-xs text-muted">{message.length}/500</p>
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="mt-3 rounded-full bg-accent px-5 py-2.5 text-sm font-medium text-bg transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="terminal-control mt-3 border border-accent/40 bg-accent px-5 py-2.5 text-sm font-medium text-bg transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {submitting ? "Posting…" : "Post message"}
                   </button>
                 </form>
               </div>
             ) : (
-              <div className="rounded-2xl border border-line bg-surface p-6">
+              <div className="terminal-window border border-line bg-surface p-6">
                 <div className="flex items-start gap-2.5">
                   <svg
                     aria-hidden="true"
@@ -612,7 +612,7 @@ export function Guestbook() {
                   <button
                     type="button"
                     onClick={() => void signIn("google")}
-                    className="inline-flex items-center gap-2 rounded-md border border-[#d1d5db] bg-white px-3 py-2 text-sm font-medium text-[#1f1f1f] shadow-sm transition-colors hover:bg-[#f7f7f7] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                    className="terminal-control inline-flex items-center gap-2 border border-line bg-surface px-3 py-2 text-sm font-medium text-fg transition-colors hover:bg-elevated focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
                   >
                     <svg aria-hidden="true" viewBox="0 0 48 48" className="size-4">
                       <path fill="#FFC107" d="M43.6 24.5c0-1.4-.1-2.8-.4-4.1H24v7.8h11a9.4 9.4 0 0 1-4.1 6.2v5.1h6.6c3.9-3.6 6.1-8.8 6.1-15Z" />
@@ -625,7 +625,7 @@ export function Guestbook() {
                   <button
                     type="button"
                     onClick={() => void signIn("github")}
-                    className="inline-flex items-center gap-2 rounded-md border border-[#d1d5db] bg-white px-3 py-2 text-sm font-medium text-[#1f1f1f] shadow-sm transition-colors hover:bg-[#f7f7f7] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                    className="terminal-control inline-flex items-center gap-2 border border-line bg-surface px-3 py-2 text-sm font-medium text-fg transition-colors hover:bg-elevated focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
                   >
                     <svg aria-hidden="true" viewBox="0 0 24 24" className="size-4 fill-current">
                       <path d="M12 .9a11.1 11.1 0 0 0-3.5 21.6c.6.1.8-.2.8-.5v-2c-3.3.7-4-1.4-4-1.4-.5-1.3-1.3-1.7-1.3-1.7-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 .1.8 2.4 4.2 1.7.1-.7.4-1.2.7-1.5-2.6-.3-5.3-1.3-5.3-5.8 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.2 1.2a11.2 11.2 0 0 1 5.8 0C18 5.3 19 5.6 19 5.6c.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.5-2.7 5.5-5.3 5.8.4.3.8 1 .8 2v2.4c0 .3.2.6.8.5A11.1 11.1 0 0 0 12 .9Z" />

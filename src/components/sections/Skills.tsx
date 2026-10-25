@@ -65,7 +65,7 @@ export function Skills() {
                 {Array.from({ length: skillMarqueeCopies }, (_, copyIndex) => (
                   <ul key={copyIndex} className="skill-marquee-sequence">
                     {group.skills.map((skill) => (
-                      <li key={skill} className="rounded-lg border border-line bg-surface px-3.5 py-2 text-sm text-fg">
+                      <li key={skill} className="terminal-chip border border-line bg-surface px-3.5 py-2 text-sm text-fg">
                         {skill}
                       </li>
                     ))}
@@ -92,7 +92,7 @@ export function Skills() {
                 aria-label="Scroll certificates left"
                 disabled={!certificateScroll.canScrollBack}
                 onClick={() => scrollCertificates(-1)}
-                className="grid size-10 place-items-center rounded-full border border-line bg-surface text-fg transition hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-40"
+                className="terminal-control grid size-10 place-items-center border border-line bg-surface text-fg transition hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-40"
               >
                 <span aria-hidden="true">←</span>
               </button>
@@ -101,7 +101,7 @@ export function Skills() {
                 aria-label="Scroll certificates right"
                 disabled={!certificateScroll.canScrollForward}
                 onClick={() => scrollCertificates(1)}
-                className="grid size-10 place-items-center rounded-full border border-line bg-surface text-fg transition hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-40"
+                className="terminal-control grid size-10 place-items-center border border-line bg-surface text-fg transition hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-40"
               >
                 <span aria-hidden="true">→</span>
               </button>
@@ -135,7 +135,7 @@ export function Skills() {
             {certificates.map((certificate) => (
               <article
                 key={`${certificate.title}-${certificate.issuer}`}
-                className="w-[min(82vw,32rem)] shrink-0 snap-start overflow-hidden rounded-2xl border border-line bg-surface"
+                className="terminal-window w-[min(82vw,32rem)] shrink-0 snap-start border border-line bg-surface"
               >
                 {certificate.image ? (
                   <img src={certificate.image} alt={`${certificate.title} certificate`} draggable={false} className="aspect-video w-full bg-bg object-contain" />
@@ -154,7 +154,7 @@ export function Skills() {
             ))}
           </div>
         ) : (
-          <div className="rounded-2xl border border-dashed border-line bg-surface p-6">
+          <div className="terminal-window border border-dashed border-line bg-surface p-6">
             <p className="font-medium">Still empty</p>
           </div>
         )}

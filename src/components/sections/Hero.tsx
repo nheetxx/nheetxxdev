@@ -27,7 +27,7 @@ export function Hero() {
         ) : (
           <div
             aria-hidden="true"
-            className="grid size-28 place-items-center rounded-2xl border-[6px] border-bg bg-surface text-3xl font-semibold text-accent shadow-sm"
+            className="grid size-28 place-items-center rounded-2xl border-[6px] border-bg bg-surface text-3xl font-semibold text-fg shadow-sm"
           >
             {profile.name.charAt(0)}
           </div>
@@ -39,7 +39,7 @@ export function Hero() {
           <h1 id="hero-title" className="text-3xl font-semibold tracking-tight sm:text-4xl">
             {"Fajarin Naufal Al Ghazir"}
           </h1>
-          <p className="mt-1 text-sm font-medium text-accent">{profile.role}</p>
+          <p className="mt-1 text-sm font-medium text-muted">{profile.role}</p>
         </header>
         <div className="max-w-3xl">
           <p className="text-sm leading-relaxed text-fg">{profile.tagline}</p>
@@ -56,7 +56,7 @@ export function Hero() {
               rel="noopener noreferrer"
               aria-label={`${s.label} profile`}
               title={s.label}
-              className="grid size-10 place-items-center rounded-md border border-line bg-surface text-muted transition-colors hover:border-accent hover:text-accent"
+              className="terminal-control grid size-10 place-items-center border border-line bg-surface text-muted transition-colors hover:border-accent hover:text-accent"
             >
               <SocialIcon label={s.label} />
             </a>
@@ -65,7 +65,7 @@ export function Hero() {
       </ul>
 
       <div className="mt-5 border-t border-line pt-5">
-        <div className="flex flex-col gap-5 rounded-xl border border-line bg-surface p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
+        <div className="terminal-window flex flex-col gap-5 rounded-xl border border-line bg-surface p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
           <div>
             <h2 className="text-lg font-semibold">Let’s work together</h2>
             <p className="mt-2 max-w-md text-sm leading-6 text-muted">

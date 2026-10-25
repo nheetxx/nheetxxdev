@@ -1,29 +1,74 @@
 @import "tailwindcss";
 
 @theme {
-  --color-bg: #222831;
-  --color-surface: #2e3541;
-  --color-line: #3e444e;
-  --color-fg: #a4b5d0;
-  --color-muted: #7f91ab;
-  --color-accent: #ff9f8c;
-  --color-accent-dim: rgb(255 159 140 / 0.12);
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-mono), ui-monospace, monospace;
-  --shadow-glow: 0 4px 14px rgb(255 159 140 / 0.16);
+  --color-bg: #0b0d12;
+  --color-sidebar: #0e1117;
+  --color-surface: #121720;
+  --color-elevated: #171d27;
+  --color-line: #252c37;
+  --color-fg: #d6dae2;
+  --color-muted: #8993a3;
+  --color-accent: #7aa2f7;
+  --color-success: #a3be8c;
+  --color-accent-dim: rgb(122 162 247 / 0.12);
+  --font-sans: var(--font-jetbrains-mono), ui-monospace, monospace;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
+  --shadow-glow: none;
 }
 
 html { color-scheme: dark; scroll-behavior: smooth; scroll-padding-top: 5rem; }
 body { background: var(--color-bg); color: var(--color-fg); font-family: var(--font-sans); }
-::selection { background: var(--color-accent-dim); color: var(--color-accent); }
+::selection { background: var(--color-accent-dim); color: var(--color-fg); }
+
+.terminal-window {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.5rem;
+  padding-top: 3.25rem;
+}
+
+.terminal-window::before {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 2.5rem;
+  border-bottom: 1px solid var(--color-line);
+  background-color: var(--color-surface);
+  background-image:
+    radial-gradient(circle, var(--color-success) 0 3px, transparent 3.5px),
+    radial-gradient(circle, var(--color-muted) 0 3px, transparent 3.5px),
+    radial-gradient(circle, var(--color-accent) 0 3px, transparent 3.5px);
+  background-position: calc(100% - 46px) center, calc(100% - 30px) center, calc(100% - 14px) center;
+  background-size: 7px 7px;
+  background-repeat: no-repeat;
+  content: "";
+}
+
+.terminal-window::after {
+  position: absolute;
+  left: 50%;
+  top: 0.68rem;
+  color: var(--color-muted);
+  content: "user@nheetxx: ~";
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  line-height: 1rem;
+  transform: translateX(-50%);
+}
+
+.terminal-chip {
+  border-radius: 0;
+}
+
+.terminal-control {
+  border-radius: 0;
+}
 
 .hero-pattern {
-  background-color: #2e3541;
+  background-color: var(--color-surface);
   background-image:
-    linear-gradient(to right, transparent 70%, #222831 100%),
-    radial-gradient(circle at 2px 2px, rgb(156 146 172 / 0.28) 1.5px, transparent 1.8px),
-    linear-gradient(135deg, rgb(46 53 65 / 0.5), rgb(34 40 49 / 0.92));
-  background-size: 100% 100%, 18px 18px, cover;
+    linear-gradient(to right, transparent 70%, var(--color-bg) 100%),
+    radial-gradient(circle at 2px 2px, rgb(137 147 163 / 0.12) 1.5px, transparent 1.8px);
+  background-size: 100% 100%, 18px 18px;
 }
 
 .skill-marquee {

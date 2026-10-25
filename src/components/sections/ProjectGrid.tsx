@@ -25,7 +25,7 @@ export function ProjectGrid({ projects }: { projects: Project[] }) {
           <h2 className="text-lg font-semibold">Tools & technologies</h2>
           <ul className="mt-3 flex flex-wrap gap-2">
             {skills.map((s) => (
-              <li key={s} className="rounded-full border border-line px-3 py-1 text-sm text-muted">
+              <li key={s} className="terminal-chip border border-line px-3 py-1 text-sm text-muted">
                 {s}
               </li>
             ))}
@@ -36,15 +36,15 @@ export function ProjectGrid({ projects }: { projects: Project[] }) {
       <ul className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         {projects.map((p) => (
           <li key={p.slug}>
-            <article className="rounded-2xl border border-line bg-surface p-6 transition-colors hover:border-accent/40">
+            <article className="terminal-window border border-line bg-surface p-6 transition-colors hover:border-accent/40">
               <h2 className="text-lg font-semibold">{p.title}</h2>
-              <p className="mt-1 text-sm text-accent">
+              <p className="mt-1 text-sm text-muted">
                 {p.role}, {p.period}
               </p>
               <p className="mt-3 text-sm text-muted">{p.summary}</p>
               <ul className="mt-4 flex flex-wrap gap-2">
                 {p.stack.map((s) => (
-                  <li key={s} className="rounded bg-accent-dim px-2 py-0.5 text-xs text-accent">
+                  <li key={s} className="terminal-chip border border-line bg-elevated px-2 py-0.5 text-xs text-muted">
                     {s}
                   </li>
                 ))}

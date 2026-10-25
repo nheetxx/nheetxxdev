@@ -23,10 +23,10 @@ export function SidebarNav({
               href={n.href}
               onClick={onNavigate}
               aria-current={active ? "page" : undefined}
-              className={`block rounded-lg px-3 py-2 text-sm transition-colors ${
+              className={`terminal-control block border-l-2 px-3 py-2 text-sm transition-colors ${
                 active
-                  ? "bg-accent-dim font-medium text-accent"
-                  : "text-muted hover:bg-bg hover:text-fg"
+                  ? "border-accent bg-accent-dim font-medium text-accent"
+                  : "border-transparent text-muted hover:border-line hover:bg-elevated hover:text-fg"
               }`}
             >
               {n.label}
