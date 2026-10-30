@@ -18,4 +18,16 @@ export const certificates: Certificate[] = [
     date: "15 May 2026",
     image: "/images/certificates/sertif1hacktiv8.jpg",
   },
+  {
+    title: "AI for Work & Career Readiness with Google AI Products",
+    issuer: "Hacktiv8 · Maju Bareng AI",
+    date: "15 May 2026",
+    image: "/images/certificates/sertif1hacktiv8.jpg",
+  },
+  {
+    title: "AI for Work & Career Readiness with Google AI Products",
+    issuer: "Hacktiv8 · Maju Bareng AI",
+    date: "15 May 2026",
+    image: "/images/certificates/sertif1hacktiv8.jpg",
+  },
 ];

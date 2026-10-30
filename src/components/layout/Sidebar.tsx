@@ -14,7 +14,7 @@ export function Sidebar() {
       <nav aria-label="Main navigation" className="flex-1">
         <SidebarNav items={nav} />
       </nav>
-      <p className="px-3 pt-6 text-xs text-muted">© {new Date().getFullYear()} NheetXX</p>
+      <p className="px-3 pt-6 text-xs text-muted">©{new Date().getFullYear()} NheetXX</p>
     </aside>
   );
 }
