@@ -100,6 +100,29 @@ body { background: var(--color-bg); color: var(--color-fg); font-family: var(--f
   to { transform: translateX(-50%); }
 }
 
+.certificate-carousel {
+  display: flex;
+  overflow: hidden;
+  mask-image: linear-gradient(to right, transparent, #000 5%, #000 95%, transparent);
+  scroll-behavior: auto;
+}
+
+.certificate-sequence {
+  display: flex;
+  flex: none;
+  align-items: stretch;
+  gap: 1rem;
+  padding-right: 1rem;
+}
+
+.certificate-carousel .terminal-window {
+  transition: filter 180ms ease-out;
+}
+
+.certificate-carousel.is-scrolling .terminal-window {
+  filter: blur(1px);
+}
+
 .mobile-nav-overlay-in {
   animation: mobile-nav-overlay-in 160ms ease-out both;
 }

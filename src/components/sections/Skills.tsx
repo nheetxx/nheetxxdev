@@ -1,40 +1,57 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { certificates, skillGroups } from "@/lib/data/skillset";
 
 const skillMarqueeCopies = 16;
 
 export function Skills() {
   const certificateTrack = useRef<HTMLDivElement>(null);
-  const dragStart = useRef<{ pointerId: number; x: number; scrollLeft: number } | null>(null);
-  const [certificateScroll, setCertificateScroll] = useState({ canScroll: false, canScrollBack: false, canScrollForward: false });
-
-  const updateCertificateScroll = useCallback(() => {
-    const track = certificateTrack.current;
-    if (!track) return;
-
-    setCertificateScroll({
-      canScroll: track.scrollWidth > track.clientWidth + 1,
-      canScrollBack: track.scrollLeft > 1,
-      canScrollForward: track.scrollLeft + track.clientWidth < track.scrollWidth - 1,
-    });
-  }, []);
+  const wrapTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [isCertificateScrolling, setIsCertificateScrolling] = useState(false);
 
   useEffect(() => {
     const track = certificateTrack.current;
-    if (!track) return;
+    const firstSequence = track?.querySelector("ul");
+    if (!track || !firstSequence) return;
 
-    updateCertificateScroll();
-    const observer = new ResizeObserver(updateCertificateScroll);
-    observer.observe(track);
-    return () => observer.disconnect();
-  }, [updateCertificateScroll]);
+    const centerTrack = () => {
+      track.scrollLeft = firstSequence.getBoundingClientRect().width;
+    };
+
+    centerTrack();
+    const observer = new ResizeObserver(centerTrack);
+    observer.observe(firstSequence);
+
+    return () => {
+      observer.disconnect();
+      if (wrapTimer.current) clearTimeout(wrapTimer.current);
+    };
+  }, []);
 
   const scrollCertificates = (direction: -1 | 1) => {
     const track = certificateTrack.current;
     if (!track) return;
-    track.scrollBy({ left: direction * Math.max(track.clientWidth * 0.8, 260), behavior: "smooth" });
+
+    const firstSequence = track.querySelector("ul");
+    const firstCard = firstSequence?.querySelector("li");
+    if (!firstSequence || !firstCard) return;
+
+    const sequenceWidth = firstSequence.getBoundingClientRect().width;
+    const gap = Number.parseFloat(getComputedStyle(firstSequence).columnGap);
+    const cardStep = firstCard.getBoundingClientRect().width + gap;
+    track.scrollBy({ left: direction * cardStep, behavior: "smooth" });
+    setIsCertificateScrolling(true);
+
+    if (wrapTimer.current) clearTimeout(wrapTimer.current);
+    wrapTimer.current = setTimeout(() => {
+      if (track.scrollLeft >= sequenceWidth * 2) {
+        track.scrollLeft -= sequenceWidth;
+      } else if (track.scrollLeft < sequenceWidth) {
+        track.scrollLeft += sequenceWidth;
+      }
+      setIsCertificateScrolling(false);
+    }, 500);
   };
 
   return (
@@ -77,85 +94,73 @@ export function Skills() {
         ))}
       </section>
 
-      <section aria-labelledby="certificates-title" className="flex flex-col gap-5 border-t border-line pt-8">
-        <div className="flex items-end justify-between gap-4">
-          <div>
-            <h2 id="certificates-title" className="text-2xl font-semibold tracking-tight">
-              Certificates
-            </h2>
-            <p className="mt-2 text-sm text-muted">Certificates and learning milestones.</p>
-          </div>
-          {certificateScroll.canScroll && (
-            <div className="flex shrink-0 gap-2">
-              <button
-                type="button"
-                aria-label="Scroll certificates left"
-                disabled={!certificateScroll.canScrollBack}
-                onClick={() => scrollCertificates(-1)}
-                className="terminal-control grid size-10 place-items-center border border-line bg-surface text-fg transition hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                <span aria-hidden="true">←</span>
-              </button>
-              <button
-                type="button"
-                aria-label="Scroll certificates right"
-                disabled={!certificateScroll.canScrollForward}
-                onClick={() => scrollCertificates(1)}
-                className="terminal-control grid size-10 place-items-center border border-line bg-surface text-fg transition hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                <span aria-hidden="true">→</span>
-              </button>
-            </div>
-          )}
+      <section aria-labelledby="certificates-title" className="flex flex-col items-center gap-5 border-t border-line pt-8">
+        <div className="w-full">
+          <h2 id="certificates-title" className="text-2xl font-semibold tracking-tight">
+            Certificates
+          </h2>
+          <p className="mt-2 text-sm text-muted">Certificates and learning milestones.</p>
         </div>
 
         {certificates.length > 0 ? (
           <div
             ref={certificateTrack}
+            className={`certificate-carousel w-full min-w-0${isCertificateScrolling ? " is-scrolling" : ""}`}
             role="region"
             aria-label="Certificates carousel"
-            tabIndex={0}
-            onScroll={updateCertificateScroll}
-            onPointerDown={(event) => {
-              if (event.pointerType !== "mouse" || event.button !== 0) return;
-              dragStart.current = { pointerId: event.pointerId, x: event.clientX, scrollLeft: event.currentTarget.scrollLeft };
-              event.currentTarget.setPointerCapture(event.pointerId);
-            }}
-            onPointerMove={(event) => {
-              const start = dragStart.current;
-              if (!start || start.pointerId !== event.pointerId) return;
-              event.currentTarget.scrollLeft = start.scrollLeft - (event.clientX - start.x);
-            }}
-            onPointerUp={(event) => {
-              if (dragStart.current?.pointerId === event.pointerId) dragStart.current = null;
-            }}
-            onPointerCancel={() => { dragStart.current = null; }}
-            className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2 select-none cursor-grab active:cursor-grabbing [scrollbar-width:thin] [scrollbar-color:var(--color-line)_transparent] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
           >
-            {certificates.map((certificate) => (
-              <article
-                key={`${certificate.title}-${certificate.issuer}`}
-                className="terminal-window w-[min(82vw,32rem)] shrink-0 snap-start border border-line bg-surface"
-              >
-                {certificate.image ? (
-                  <img src={certificate.image} alt={`${certificate.title} certificate`} draggable={false} className="aspect-video w-full bg-bg object-contain" />
-                ) : (
-                  <div className="grid aspect-video place-items-center border-b border-line bg-bg text-sm text-muted">
-                    Certificate image coming soon
-                  </div>
+            {[0, 1, 2].map((copyIndex) => (
+              <ul key={copyIndex} className="certificate-sequence" aria-hidden={copyIndex !== 1}>
+                {Array.from({ length: 3 }, (_, repeatIndex) =>
+                  certificates.map((certificate, certificateIndex) => (
+                    <li
+                      key={`${certificate.title}-${certificate.issuer}-${copyIndex}-${repeatIndex}-${certificateIndex}`}
+                      className="terminal-window w-[min(82vw,32rem)] shrink-0 border border-line bg-surface"
+                      aria-hidden={repeatIndex > 0}
+                    >
+                      {certificate.image ? (
+                        <img src={certificate.image} alt={`${certificate.title} certificate`} draggable={false} className="aspect-video w-full bg-bg object-contain" />
+                      ) : (
+                        <div className="grid aspect-video place-items-center border-b border-line bg-bg text-sm text-muted">
+                          Certificate image coming soon
+                        </div>
+                      )}
+                      <div className="p-5">
+                        <h3 className="font-semibold">{certificate.title || ":)"}</h3>
+                        <p className="mt-1 text-sm text-muted">
+                          {certificate.issuer || "Issuer not added"} · {certificate.date || "Date not added"}
+                        </p>
+                      </div>
+                    </li>
+                  )),
                 )}
-                <div className="p-5">
-                  <h3 className="font-semibold">{certificate.title || ":)"}</h3>
-                  <p className="mt-1 text-sm text-muted">
-                    {certificate.issuer || "Issuer not added"} · {certificate.date || "Date not added"}
-                  </p>
-                </div>
-              </article>
+              </ul>
             ))}
           </div>
         ) : (
-          <div className="terminal-window border border-dashed border-line bg-surface p-6">
+          <div className="terminal-window w-full border border-dashed border-line bg-surface p-6">
             <p className="font-medium">Still empty</p>
+          </div>
+        )}
+
+        {certificates.length > 0 && (
+          <div className="flex justify-center gap-2">
+            <button
+              type="button"
+              aria-label="Scroll certificates left"
+              onClick={() => scrollCertificates(-1)}
+              className="terminal-control grid size-10 place-items-center border border-line bg-surface text-fg transition hover:border-accent hover:text-accent"
+            >
+              <span aria-hidden="true">←</span>
+            </button>
+            <button
+              type="button"
+              aria-label="Scroll certificates right"
+              onClick={() => scrollCertificates(1)}
+              className="terminal-control grid size-10 place-items-center border border-line bg-surface text-fg transition hover:border-accent hover:text-accent"
+            >
+              <span aria-hidden="true">→</span>
+            </button>
           </div>
         )}
       </section>

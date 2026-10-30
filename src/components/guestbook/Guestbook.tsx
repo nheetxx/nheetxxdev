@@ -426,7 +426,7 @@ export function Guestbook() {
               disabled={busyReaction !== null}
               className="terminal-control inline-flex size-8 items-center justify-center border border-line bg-bg text-base text-muted transition-colors hover:border-accent/40 hover:bg-elevated hover:text-fg"
             >
-              +
+              
             </button>
             {reactionPickerFor === entryId && (
               <div className="absolute left-0 top-full z-20 mt-2">
