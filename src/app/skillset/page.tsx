@@ -1,7 +1,5 @@
-import type { Metadata } from "next";
-import { Skills } from "@/components/sections/Skills";
+import { redirect } from "next/navigation";
 
-export const metadata: Metadata = { title: "Skillset" };
 export default function Page() {
-  return <Skills />;
+  redirect("/portofolio/");
 }

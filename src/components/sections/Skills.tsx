@@ -57,13 +57,13 @@ export function Skills() {
   return (
     <section
       aria-labelledby="skills-title"
-      className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-6 py-12 sm:px-10 sm:py-16 lg:mx-0 lg:px-12 lg:py-20"
+      className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-6 pt-12 pb-6 sm:px-10 sm:pt-16 sm:pb-8 lg:mx-0 lg:px-12 lg:pt-20 lg:pb-10"
     >
       <header className="border-b border-line pb-6">
         <h1 id="skills-title" className="text-3xl font-semibold tracking-tight sm:text-4xl">
-          Skillset
+          Portfolio
         </h1>
-        <p className="mt-2 text-sm text-muted">Tools and areas I’m learning and working with.</p>
+        <p className="mt-2 text-sm text-muted">Skills, certificates, and selected projects.</p>
       </header>
 
       <section aria-label="Skills by category" className="flex flex-col divide-y divide-line border-y border-line">

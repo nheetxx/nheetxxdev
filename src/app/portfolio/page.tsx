@@ -1,8 +1,5 @@
-import type { Metadata } from "next";
-import { ProjectGrid } from "@/components/sections/ProjectGrid";
-import { projects } from "@/lib/data/projects";
+import { redirect } from "next/navigation";
 
-export const metadata: Metadata = { title: "Portfolio" };
 export default function Page() {
-  return <ProjectGrid projects={projects} />;
+  redirect("/portofolio/");
 }
