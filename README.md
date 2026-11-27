@@ -21,7 +21,7 @@ Information Systems student · cybersecurity · building for the web
 
 ## What's inside
 
-Most portfolio sites are a static page with a list of skills. This one has two parts that actually do something:
+Most portofolio sites are a static page with a list of skills. This one has two parts that actually do something:
 
 **A live dashboard.** `/dashboard` shows the site's own Lighthouse scores (performance, accessibility, best practices, SEO) for mobile and desktop, pulled from Google PageSpeed Insights and refreshed hourly. Right below it is my GitHub contribution graph for the past year. If I ship something that tanks the score, it's visible to everyone, including me.
 
@@ -39,8 +39,7 @@ The rest is the usual set, kept short:
 | --- | --- |
 | `/` | Intro and links |
 | `/about` | Background and what I'm learning |
-| `/portfolio` | Selected projects |
-| `/skillset` | Cybersecurity, systems, and development tools, plus certificates |
+| `/portofolio` | Skills, certificates, and selected projects |
 | `/experience` | Education and work timeline |
 | `/dashboard` | Live PageSpeed scores and GitHub activity |
 | `/guestbook` | Public visitor messages |
