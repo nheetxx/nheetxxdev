@@ -1,4 +1,4 @@
-name: Build portfolio
+name: Build portofolio
 on:
   push:
     branches: [main]

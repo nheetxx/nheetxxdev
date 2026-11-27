@@ -28,7 +28,7 @@ export const projects: Project[] = [
   },
   {
     slug: "project4",
-    title: "Personal Portfolio",
+    title: "Personal Portofolio",
     role: "Development",
     period: "2026",
     summary: "A responsive personal website built with a minimal visual style.",

@@ -3,7 +3,7 @@ import { ProjectGrid } from "@/components/sections/ProjectGrid";
 import { Skills } from "@/components/sections/Skills";
 import { projects } from "@/lib/data/projects";
 
-export const metadata: Metadata = { title: "Portfolio" };
+export const metadata: Metadata = { title: "Portofolio" };
 
 export default function Page() {
   return (

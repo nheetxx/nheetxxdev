@@ -61,7 +61,7 @@ export function Skills() {
     >
       <header className="border-b border-line pb-6">
         <h1 id="skills-title" className="text-3xl font-semibold tracking-tight sm:text-4xl">
-          Portfolio
+          Portofolio
         </h1>
         <p className="mt-2 text-sm text-muted">Skills, certificates, and selected projects.</p>
       </header>
